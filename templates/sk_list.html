@@ -31,6 +31,20 @@
       </tr>
     </thead>
     <tbody>
+      {% if not sk_list %}
+      <tr>
+        <td colspan="7">
+          <div class="empty-state">
+            <div class="empty-state-icon">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><path d="M16 13a4 4 0 0 1-8 0"></path></svg>
+            </div>
+            <div class="empty-state-title">Belum ada SK realokasi</div>
+            <div class="empty-state-text">Masukkan dasar hukum SK realokasi Dinas (Kabupaten/Provinsi) sebagai rujukan addendum.</div>
+            <button onclick="document.getElementById('modalSK').style.display='flex'" class="btn btn-primary">Input SK Realokasi Baru</button>
+          </div>
+        </td>
+      </tr>
+      {% endif %}
       {% for sk in sk_list %}
       <tr>
         <td style="color: var(--text-muted); font-size: 11px;">{{ loop.index }}</td>

@@ -16,3 +16,6 @@ backups/*.db
 *.log
 test.html
 test_gen.py
+
+# Folder cadangan & preview redesain (lokal saja)
+_redesign_backup/

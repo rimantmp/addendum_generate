@@ -43,6 +43,20 @@
       </tr>
     </thead>
     <tbody>
+      {% if not kios %}
+      <tr>
+        <td colspan="7">
+          <div class="empty-state">
+            <div class="empty-state-icon">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+            </div>
+            <div class="empty-state-title">Belum ada kios pengecer</div>
+            <div class="empty-state-text">Tambahkan kios mitra resmi untuk mulai menerbitkan SPJB dan addendum.</div>
+            <button onclick="openCreateModal()" class="btn btn-primary">Tambah Kios Baru</button>
+          </div>
+        </td>
+      </tr>
+      {% endif %}
       {% for k in kios %}
       <tr>
         <td style="color: var(--text-muted); font-size: 11px;">{{ loop.index }}</td>
