@@ -1,0 +1,5 @@
+# Simpan skrip Windows sebagai byte verbatim (CRLF) tanpa konversi,
+# agar setiap "git pull" di komputer mana pun langsung mendapat CRLF.
+*.bat -text
+*.cmd -text
+*.ps1 -text
