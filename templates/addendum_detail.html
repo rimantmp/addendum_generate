@@ -1,0 +1,270 @@
+{% extends "base.html" %}
+
+{% block title %}Detail Addendum {{ addendum.nomor_addendum }}{% endblock %}
+{% block breadcrumb %}{{ addendum.nomor_addendum }}{% endblock %}
+
+{% block content %}
+<div class="page-title-group">
+  <div>
+    <h1 class="page-headline">{{ addendum.nomor_addendum }}</h1>
+    <p class="page-subheadline">
+      <b>{{ addendum.perjanjian_induk.kios.nama_kios }}</b> &bull; Addendum- {{ addendum.addendum_ke }} &bull; 
+      Wilayah: 
+      {% for kec in daftar_kecamatan %}
+        <span class="badge badge-green" style="margin-right: 3px;">Kec. {{ kec }}</span>
+      {% endfor %}
+    </p>
+  </div>
+  <div class="page-action-buttons">
+    <a href="{{ url_for('download_pdf', addendum_id=addendum.id) }}" class="btn btn-pdf">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+      Unduh PDF
+    </a>
+    <a href="{{ url_for('download_docx', addendum_id=addendum.id) }}" class="btn btn-docx">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+      Unduh Word (.docx)
+    </a>
+  </div>
+</div>
+
+<div style="display: grid; grid-template-columns: 310px 1fr; gap: 24px; align-items: start;">
+  <!-- Sisi Kiri: Metadata & Tambah Kecamatan -->
+  <div>
+    <div class="form-card" style="margin-bottom: 18px;">
+      <h3 style="font-size: 13.5px; font-weight: 700; margin-bottom: 12px; border-bottom: 1px solid var(--border); padding-bottom: 8px;">
+        Identitas Para Pihak
+      </h3>
+      <div style="margin-bottom: 14px;">
+        <div style="font-size: 10.5px; text-transform: uppercase; color: var(--text-muted); font-weight: 600;">Pihak Pertama (Distributor)</div>
+        <div style="font-weight: 600; font-size: 13px; color: var(--text-primary);">{{ addendum.perjanjian_induk.distributor.nama_perusahaan }}</div>
+        <div style="font-size: 12px; color: var(--text-secondary);">{{ addendum.perjanjian_induk.distributor.nama_pimpinan }} ({{ addendum.perjanjian_induk.distributor.jabatan }})</div>
+      </div>
+      <div>
+        <div style="font-size: 10.5px; text-transform: uppercase; color: var(--text-muted); font-weight: 600;">Pihak Kedua (Kios)</div>
+        <div style="font-weight: 600; font-size: 13px; color: var(--text-primary);">{{ addendum.perjanjian_induk.kios.nama_kios }}</div>
+        <div style="font-size: 12px; color: var(--text-secondary);">{{ addendum.perjanjian_induk.kios.nama_pemilik }} ({{ addendum.perjanjian_induk.kios.jabatan }})</div>
+        <div style="font-size: 11.5px; color: var(--text-muted); margin-top: 2px;">{{ addendum.perjanjian_induk.kios.alamat }}</div>
+      </div>
+    </div>
+
+    <div class="form-card" style="margin-bottom: 18px;">
+      <h3 style="font-size: 13.5px; font-weight: 700; margin-bottom: 12px; border-bottom: 1px solid var(--border); padding-bottom: 8px;">
+        Dasar Hukum Perjanjian
+      </h3>
+      <div style="margin-bottom: 12px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 3px;">
+          <div style="font-size: 10.5px; color: var(--text-muted); font-weight: 600;">PERJANJIAN INDUK (SPJB)</div>
+          <div style="display: flex; gap: 4px;">
+            <a href="{{ url_for('spjb_pdf', kios_id=addendum.perjanjian_induk.kios.id) }}" class="btn btn-secondary btn-sm" style="padding: 2px 6px; font-size: 10px;" title="Unduh SPJB format PDF">PDF</a>
+            <a href="{{ url_for('spjb_docx', kios_id=addendum.perjanjian_induk.kios.id) }}" class="btn btn-secondary btn-sm" style="padding: 2px 6px; font-size: 10px;" title="Unduh SPJB format DOCX">DOCX</a>
+          </div>
+        </div>
+        <div style="font-weight: 600; font-size: 12.5px; font-family: var(--font-mono);">{{ addendum.perjanjian_induk.nomor_surat }}</div>
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 5px; padding: 4px 8px; background: var(--bg-hover); border-radius: 4px; border: 1px solid var(--border);">
+          <div style="font-size: 11px; color: var(--text-secondary);">
+            Berlaku s/d: <b style="color: var(--text-primary);">{{ addendum.perjanjian_induk.tanggal_berlaku_sampai.strftime('%d-%m-%Y') if addendum.perjanjian_induk.tanggal_berlaku_sampai else '31-12-2022' }}</b>
+          </div>
+          <button type="button" onclick="openEditSpjbExpModal()" class="btn btn-secondary btn-sm" style="padding: 1px 6px; font-size: 10px;">Ubah</button>
+        </div>
+      </div>
+      {% if addendum.sk_provinsi %}
+      <div style="margin-bottom: 10px;">
+        <div style="font-size: 10.5px; color: var(--text-muted); font-weight: 600;">SK PROVINSI (REALOKASI)</div>
+        <div style="font-weight: 600; font-size: 12.5px;">{{ addendum.sk_provinsi.nomor_sk }}</div>
+        <div style="font-size: 11.5px; color: var(--text-secondary);">{{ addendum.sk_provinsi.realokasi_ke }} &bull; {{ addendum.sk_provinsi.tanggal_sk.strftime('%d/%m/%Y') }}</div>
+      </div>
+      {% endif %}
+      <div>
+        <div style="font-size: 10.5px; color: var(--text-muted); font-weight: 600;">SK KABUPATEN (REALOKASI)</div>
+        <div style="font-weight: 600; font-size: 12.5px;">{{ addendum.sk_kabupaten.nomor_sk }}</div>
+        <div style="font-size: 11.5px; color: var(--text-secondary);">{{ addendum.sk_kabupaten.realokasi_ke }} &bull; {{ addendum.sk_kabupaten.tanggal_sk.strftime('%d/%m/%Y') }}</div>
+      </div>
+    </div>
+
+    <!-- Quick Add Kecamatan Box -->
+    <div class="form-card" style="border: 1px dashed var(--primary-border); background-color: var(--primary-subtle);">
+      <h3 style="font-size: 13px; font-weight: 700; color: var(--primary-dark); margin-bottom: 4px;">
+        + Tambah Tabel Kecamatan
+      </h3>
+      <p style="font-size: 11.5px; color: var(--text-secondary); margin-bottom: 12px;">
+        Tambahkan tabel alokasi untuk wilayah kecamatan lain jika kios melayani lebih dari satu wilayah.
+      </p>
+      <form method="POST" action="{{ url_for('add_kecamatan_to_addendum', addendum_id=addendum.id) }}">
+        <div class="form-group" style="margin-bottom: 8px;">
+          <input type="text" name="nama_kecamatan" class="form-input" placeholder="Contoh: MASANDA" style="text-transform: uppercase; font-weight: 600;" required>
+        </div>
+        <button type="submit" class="btn btn-primary btn-sm" style="width: 100%;">
+          Tambahkan Tabel Kecamatan
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Sisi Kanan: Matriks Kuota Bulanan (Per Kecamatan) -->
+  <div>
+    <form method="POST" action="{{ url_for('update_allocation', addendum_id=addendum.id) }}">
+      
+      {% for k_item in kecamatan_tables %}
+      <input type="hidden" name="kecamatan_list" value="{{ k_item.kecamatan }}">
+      
+      <div class="form-card" style="margin-bottom: 22px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid var(--border); padding-bottom: 10px;">
+          <div>
+            <div style="font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: 600;">Wilayah Distribusi</div>
+            <h3 style="font-size: 15px; font-weight: 700; color: var(--text-primary);">
+              KECAMATAN {{ k_item.kecamatan }}
+            </h3>
+          </div>
+          
+          <div style="display: flex; gap: 8px; align-items: center;">
+            <button type="button" class="btn btn-secondary btn-sm" onclick="openExcelModalForTable(this)" title="Salin & tempel tabel alokasi langsung dari Microsoft Excel">
+              📋 Paste dari Excel
+            </button>
+            <span class="badge badge-green" style="font-variant-numeric: tabular-nums;">
+              Total: {{ k_item.totals[0] }} Ton NPK
+            </span>
+            
+            {% if kecamatan_tables|length > 1 %}
+            <button type="submit" 
+                    formaction="{{ url_for('delete_kecamatan_from_addendum', addendum_id=addendum.id) }}"
+                    name="nama_kecamatan" 
+                    value="{{ k_item.kecamatan }}"
+                    onclick="return confirm('Hapus seluruh alokasi untuk Kecamatan {{ k_item.kecamatan }}?');"
+                    class="btn btn-danger-subtle btn-sm" title="Hapus tabel kecamatan ini">
+              Hapus Kecamatan
+            </button>
+            {% endif %}
+          </div>
+        </div>
+
+        <table class="matrix-input-table">
+          <thead>
+            <tr>
+              <th style="width: 40px;">NO</th>
+              <th style="width: 130px; text-align: left; padding-left: 10px;">BULAN</th>
+              {% for p in jenis_pupuk_list %}
+                <th>{{ p.kode }}</th>
+              {% endfor %}
+            </tr>
+          </thead>
+          <tbody>
+            {% for r in rows_data %}
+            <tr class="{% if r.no in [3, 6, 9] %}quarter-end{% endif %}">
+              <td style="color: var(--text-muted); font-size: 11px;">{{ r.no }}</td>
+              <td class="col-bulan-title">{{ r.bulan }}</td>
+              {% for p in jenis_pupuk_list %}
+                <td>
+                  <input type="number" step="any" min="0" 
+                         name="kuota_{{ k_item.kecamatan }}_{{ r.no }}_{{ p.id }}" 
+                         value="{{ k_item.matriks[r.no][p.id] }}">
+                </td>
+              {% endfor %}
+            </tr>
+            {% endfor %}
+            <tr class="subtotal-row">
+              <td>-</td>
+              <td style="text-align: center; color: var(--text-primary);">SUBTOTAL</td>
+              {% for tot in k_item.totals %}
+                <td>{{ tot }}</td>
+              {% endfor %}
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      {% endfor %}
+
+      <!-- Rekapitulasi Jika > 1 Kecamatan -->
+      {% if kecamatan_tables|length > 1 %}
+      <div class="form-card" style="margin-bottom: 24px; background: #fafbfc;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid var(--border); padding-bottom: 8px;">
+          <h3 style="font-size: 14px; font-weight: 700; color: var(--text-primary);">
+            Rekapitulasi Total Seluruh Kecamatan
+          </h3>
+          <span style="font-size: 11.5px; color: var(--text-secondary);">Satuan: Ton/Liter</span>
+        </div>
+        
+        <table class="matrix-input-table">
+          <thead>
+            <tr>
+              <th style="width: 40px;">NO</th>
+              <th style="text-align: left; padding-left: 12px;">KECAMATAN</th>
+              {% for p in jenis_pupuk_list %}
+                <th>{{ p.kode }}</th>
+              {% endfor %}
+            </tr>
+          </thead>
+          <tbody>
+            {% for k_item in kecamatan_tables %}
+            <tr>
+              <td style="color: var(--text-muted); font-size: 11px;">{{ loop.index }}</td>
+              <td style="text-align: left; font-weight: 600; padding-left: 12px;">KEC. {{ k_item.kecamatan }}</td>
+              {% for tot in k_item.totals %}
+                <td style="font-weight: 500;">{{ tot }}</td>
+              {% endfor %}
+            </tr>
+            {% endfor %}
+            <tr class="grand-total-row">
+              <td>-</td>
+              <td style="text-align: center;">GRAND TOTAL KESELURUHAN</td>
+              {% for gtot in grand_totals %}
+                <td>{{ gtot }}</td>
+              {% endfor %}
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      {% endif %}
+
+      <!-- Sticky Save Bar -->
+      <div style="position: sticky; bottom: 16px; z-index: 10; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(4px); border: 1px solid var(--border-strong); padding: 12px 18px; border-radius: var(--radius-md); box-shadow: var(--shadow-md); display: flex; justify-content: space-between; align-items: center;">
+        <div style="font-size: 12px; color: var(--text-secondary);">
+          Pastikan seluruh kuota telah sesuai sebelum menyimpan.
+        </div>
+        <button type="submit" class="btn btn-primary btn-lg">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+          Simpan Seluruh Perubahan Kuota
+        </button>
+      </div>
+
+    </form>
+  </div>
+</div>
+
+<!-- Modal Ubah Masa Berlaku SPJB Induk -->
+<div id="modalSpjbExp" class="modal-backdrop" style="display: none;">
+  <div class="modal-box" style="max-width: 400px;">
+    <div class="modal-header">
+      <h3 class="modal-title">Ubah Masa Berlaku SPJB</h3>
+      <button type="button" class="modal-close" onclick="closeEditSpjbExpModal()">&times;</button>
+    </div>
+    <form method="POST" action="{{ url_for('update_spjb_expiry', addendum_id=addendum.id) }}">
+      <div class="form-group">
+        <label class="form-label">Tanggal Batas Berlaku (Sampai Dengan)</label>
+        <input type="date" name="tanggal_berlaku_sampai" class="form-input" 
+               value="{{ addendum.perjanjian_induk.tanggal_berlaku_sampai.strftime('%Y-%m-%d') if addendum.perjanjian_induk.tanggal_berlaku_sampai else '2022-12-31' }}" required>
+        <p style="font-size: 11px; color: var(--text-muted); margin-top: 5px; line-height: 1.4;">
+          Tanggal ini akan otomatis tercantum pada Poin A Addendum ("...berlaku efektif sampai dengan tanggal [Tanggal]...").
+        </p>
+      </div>
+      <div class="modal-actions">
+        <button type="button" onclick="closeEditSpjbExpModal()" class="btn btn-secondary">Batal</button>
+        <button type="submit" class="btn btn-primary">Simpan Tanggal</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  function openEditSpjbExpModal() {
+    document.getElementById('modalSpjbExp').style.display = 'flex';
+  }
+  function closeEditSpjbExpModal() {
+    document.getElementById('modalSpjbExp').style.display = 'none';
+  }
+  window.addEventListener('click', function(e) {
+    var m = document.getElementById('modalSpjbExp');
+    if (e.target == m) m.style.display = 'none';
+  });
+</script>
+<script src="{{ url_for('static', filename='excel_paste.js') }}"></script>
+{% endblock %}

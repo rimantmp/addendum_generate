@@ -1,0 +1,274 @@
+{% extends "base.html" %}
+
+{% block title %}Master Kios Pengecer{% endblock %}
+{% block breadcrumb %}Master Kios{% endblock %}
+
+{% block content %}
+<div class="page-title-group">
+  <div>
+    <h1 class="page-headline">Master Data Kios Pengecer</h1>
+    <p class="page-subheadline">Kelola, edit, dan pantau seluruh jaringan kios mitra resmi di Kabupaten Tana Toraja.</p>
+  </div>
+  <div class="page-action-buttons">
+    <button onclick="openCreateModal()" class="btn btn-primary">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+      Tambah Kios Baru
+    </button>
+  </div>
+</div>
+
+<!-- Table Filter & Search -->
+<div class="table-filter-bar">
+  <div class="search-input-box">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+    <input type="text" id="kiosSearchInput" placeholder="Cari nama kios, pemilik, kecamatan..." onkeyup="filterKiosTable()">
+  </div>
+
+  <div style="font-size: 12px; color: var(--text-secondary);">
+    Terdaftar: <b style="color: var(--text-primary);">{{ kios|length }}</b> kios
+  </div>
+</div>
+
+<div class="table-wrapper with-filter">
+  <table class="data-table" id="kiosTable">
+    <thead>
+      <tr>
+        <th style="width: 45px;">NO</th>
+        <th style="width: 80px;">KODE</th>
+        <th>NAMA KIOS / TOKO</th>
+        <th>PENANGGUNG JAWAB</th>
+        <th style="width: 175px;">NOMOR SPJB</th>
+        <th>ALAMAT & KECAMATAN</th>
+        <th style="text-align: right; width: 250px;">DOKUMEN & AKSI</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for k in kios %}
+      <tr>
+        <td style="color: var(--text-muted); font-size: 11px;">{{ loop.index }}</td>
+        <td><span class="badge badge-green">{{ k.kode_kios or '-' }}</span></td>
+        <td style="font-weight: 600; color: var(--text-primary);">{{ k.nama_kios }}</td>
+        <td>
+          <div>{{ k.nama_pemilik }}</div>
+          <div style="color: var(--text-secondary); font-size: 11px;">{{ k.jabatan }}</div>
+        </td>
+        <td>
+          <span style="font-family: var(--font-mono); font-size: 11.5px; font-weight: 600; color: var(--text-primary); background: var(--bg-hover); padding: 3px 7px; border-radius: 4px; border: 1px solid var(--border);">
+            {{ k.nomor_spjb or '-' }}
+          </span>
+        </td>
+        <td>
+          <div>{{ k.alamat }}</div>
+          <div style="font-size: 11.5px; color: var(--text-secondary); font-weight: 500;">Kec. {{ k.kecamatan }}</div>
+        </td>
+        <td style="text-align: right;">
+          <div style="display: inline-flex; gap: 4px; align-items: center; justify-content: flex-end;">
+            <!-- Unduh SPJB Button Group -->
+            <a href="{{ url_for('spjb_pdf', kios_id=k.id) }}" class="btn btn-secondary btn-sm" title="Unduh SPJB format PDF" style="padding: 4px 8px; font-size: 11px; display: inline-flex; align-items: center; gap: 4px;">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="12" y1="18" x2="12" y2="12"></line><line x1="9" y1="15" x2="15" y2="15"></line></svg>
+              SPJB (PDF)
+            </a>
+            <a href="{{ url_for('spjb_docx', kios_id=k.id) }}" class="btn btn-secondary btn-sm" title="Unduh SPJB format Word DOCX" style="padding: 4px 8px; font-size: 11px;">
+              DOCX
+            </a>
+
+            <button type="button" class="btn btn-secondary btn-sm" style="padding: 4px 8px; font-size: 11px;"
+                    data-id="{{ k.id }}"
+                    data-nama="{{ k.nama_kios|e }}"
+                    data-pemilik="{{ k.nama_pemilik|e }}"
+                    data-jabatan="{{ k.jabatan|e }}"
+                    data-kode="{{ (k.kode_kios or '')|e }}"
+                    data-spjb="{{ (k.nomor_spjb or '')|e }}"
+                    data-spjb-exp="{{ k.perjanjian_induk[0].tanggal_berlaku_sampai.strftime('%Y-%m-%d') if (k.perjanjian_induk and k.perjanjian_induk[0].tanggal_berlaku_sampai) else '2022-12-31' }}"
+                    data-kecamatan="{{ k.kecamatan|e }}"
+                    data-alamat="{{ k.alamat|e }}"
+                    onclick="openEditModalFromBtn(this)">
+              Edit
+            </button>
+
+            <form method="POST" action="{{ url_for('delete_kios', kios_id=k.id) }}" 
+                  onsubmit="return confirm('Apakah Anda yakin ingin menghapus kios ini? Tindakan ini tidak dapat dibatalkan.');" 
+                  style="margin: 0;">
+              <button type="submit" class="btn btn-danger-subtle btn-sm" style="padding: 4px 8px; font-size: 11px;">
+                Hapus
+              </button>
+            </form>
+          </div>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<!-- Modal Tambah Kios Baru -->
+<div id="modalCreateKios" class="modal-backdrop" style="display: none;">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h3 class="modal-title">Tambah Kios Baru</h3>
+      <button type="button" class="modal-close" onclick="closeCreateModal()">&times;</button>
+    </div>
+    <form method="POST" action="{{ url_for('create_kios') }}">
+      <div class="form-grid-3" style="display: grid; grid-template-columns: 1fr 1.2fr 1.1fr; gap: 12px;">
+        <div class="form-group">
+          <label class="form-label">
+            Kode Kios
+            <span style="font-size: 10px; font-weight: normal; color: var(--primary);">(Otomatis)</span>
+          </label>
+          <input type="text" name="kode_kios" class="form-input" value="{{ next_kode_kios }}" placeholder="Contoh: K-011" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">
+            Nomor SPJB
+            <span style="font-size: 10px; font-weight: normal; color: var(--primary);">(Otomatis)</span>
+          </label>
+          <input type="text" name="nomor_spjb" class="form-input" value="{{ next_nomor_spjb }}" placeholder="Contoh: 11/SP/CV.ST/I/2022" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Berlaku SPJB s/d</label>
+          <input type="date" name="tanggal_berlaku_sampai" class="form-input" value="2022-12-31" required>
+        </div>
+      </div>
+      <div class="form-grid-2">
+        <div class="form-group">
+          <label class="form-label">Nama Kios / Toko</label>
+          <input type="text" name="nama_kios" class="form-input" placeholder="Contoh: UD SEJAHTERA TANI" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Jabatan Pimpinan</label>
+          <input type="text" name="jabatan" class="form-input" value="PIMPINAN" required>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Nama Pemilik / Pimpinan</label>
+        <input type="text" name="nama_pemilik" class="form-input" placeholder="Nama Lengkap Penanggung Jawab" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Wilayah Kecamatan</label>
+        <input type="text" name="kecamatan" class="form-input" placeholder="Contoh: Mengkendek" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Alamat Lengkap</label>
+        <input type="text" name="alamat" class="form-input" placeholder="Jl. Poros Rantepao - Makale" required>
+      </div>
+      <div class="modal-actions">
+        <button type="button" onclick="closeCreateModal()" class="btn btn-secondary">Batal</button>
+        <button type="submit" class="btn btn-primary">Simpan Kios</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal Edit Kios -->
+<div id="modalEditKios" class="modal-backdrop" style="display: none;">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h3 class="modal-title">Edit Data Kios Pengecer</h3>
+      <button type="button" class="modal-close" onclick="closeEditModal()">&times;</button>
+    </div>
+    <form id="formEditKios" method="POST" action="">
+      <div class="form-grid-3" style="display: grid; grid-template-columns: 1fr 1.2fr 1.1fr; gap: 12px;">
+        <div class="form-group">
+          <label class="form-label">Kode Kios</label>
+          <input type="text" id="edit_kode_kios" name="kode_kios" class="form-input" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Nomor SPJB</label>
+          <input type="text" id="edit_nomor_spjb" name="nomor_spjb" class="form-input" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Berlaku SPJB s/d</label>
+          <input type="date" id="edit_tanggal_berlaku_sampai" name="tanggal_berlaku_sampai" class="form-input" required>
+        </div>
+      </div>
+      <div class="form-grid-2">
+        <div class="form-group">
+          <label class="form-label">Nama Kios / Toko</label>
+          <input type="text" id="edit_nama_kios" name="nama_kios" class="form-input" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Jabatan Pimpinan</label>
+          <input type="text" id="edit_jabatan" name="jabatan" class="form-input" required>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Nama Pemilik / Pimpinan</label>
+        <input type="text" id="edit_nama_pemilik" name="nama_pemilik" class="form-input" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Wilayah Kecamatan</label>
+        <input type="text" id="edit_kecamatan" name="kecamatan" class="form-input" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Alamat Lengkap</label>
+        <input type="text" id="edit_alamat" name="alamat" class="form-input" required>
+      </div>
+      <div class="modal-actions">
+        <button type="button" onclick="closeEditModal()" class="btn btn-secondary">Batal</button>
+        <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  function openCreateModal() {
+    document.getElementById('modalCreateKios').style.display = 'flex';
+  }
+  function closeCreateModal() {
+    document.getElementById('modalCreateKios').style.display = 'none';
+  }
+
+  function openEditModalFromBtn(btn) {
+    const d = btn.dataset;
+    document.getElementById('formEditKios').action = '/kios/' + d.id + '/edit';
+    document.getElementById('edit_nama_kios').value = d.nama || '';
+    document.getElementById('edit_nama_pemilik').value = d.pemilik || '';
+    document.getElementById('edit_jabatan').value = d.jabatan || '';
+    document.getElementById('edit_kode_kios').value = d.kode || '';
+    document.getElementById('edit_nomor_spjb').value = d.spjb || '';
+    document.getElementById('edit_tanggal_berlaku_sampai').value = d.spjbExp || '2022-12-31';
+    document.getElementById('edit_kecamatan').value = d.kecamatan || '';
+    document.getElementById('edit_alamat').value = d.alamat || '';
+    document.getElementById('modalEditKios').style.display = 'flex';
+  }
+
+  function openEditModal(id, nama, pemilik, jabatan, kode, spjb, kecamatan, alamat) {
+    document.getElementById('formEditKios').action = '/kios/' + id + '/edit';
+    document.getElementById('edit_nama_kios').value = nama || '';
+    document.getElementById('edit_nama_pemilik').value = pemilik || '';
+    document.getElementById('edit_jabatan').value = jabatan || '';
+    document.getElementById('edit_kode_kios').value = kode || '';
+    document.getElementById('edit_nomor_spjb').value = spjb || '';
+    document.getElementById('edit_kecamatan').value = kecamatan || '';
+    document.getElementById('edit_alamat').value = alamat || '';
+    document.getElementById('modalEditKios').style.display = 'flex';
+  }
+  function closeEditModal() {
+    document.getElementById('modalEditKios').style.display = 'none';
+  }
+
+  window.onclick = function(event) {
+    var modalCreate = document.getElementById('modalCreateKios');
+    var modalEdit = document.getElementById('modalEditKios');
+    if (event.target == modalCreate) modalCreate.style.display = 'none';
+    if (event.target == modalEdit) modalEdit.style.display = 'none';
+  }
+
+  function filterKiosTable() {
+    const input = document.getElementById("kiosSearchInput");
+    const filter = input.value.toUpperCase();
+    const table = document.getElementById("kiosTable");
+    const tr = table.getElementsByTagName("tr");
+
+    for (let i = 1; i < tr.length; i++) {
+      const text = tr[i].textContent || tr[i].innerText;
+      if (text.toUpperCase().indexOf(filter) > -1) {
+        tr[i].style.display = "";
+      } else {
+        tr[i].style.display = "none";
+      }
+    }
+  }
+</script>
+{% endblock %}

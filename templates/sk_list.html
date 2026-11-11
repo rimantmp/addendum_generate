@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+
+{% block title %}Dasar Hukum SK Realokasi{% endblock %}
+{% block breadcrumb %}SK Realokasi{% endblock %}
+
+{% block content %}
+<div class="page-title-group">
+  <div>
+    <h1 class="page-headline">Dasar Hukum & SK Realokasi</h1>
+    <p class="page-subheadline">Daftar Surat Keputusan penetapan realokasi kebutuhan pupuk bersubsidi (Provinsi & Kabupaten).</p>
+  </div>
+  <div class="page-action-buttons">
+    <button onclick="document.getElementById('modalSK').style.display='flex'" class="btn btn-primary">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+      Input SK Realokasi Baru
+    </button>
+  </div>
+</div>
+
+<div class="table-wrapper">
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th style="width: 45px;">NO</th>
+        <th style="width: 100px;">TINGKAT</th>
+        <th>TAHAP REALOKASI</th>
+        <th>NOMOR SURAT KEPUTUSAN</th>
+        <th>TANGGAL SK</th>
+        <th>INSTANSI / DAERAH PENETAP</th>
+        <th style="text-align: right; width: 80px;">TAHUN</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for sk in sk_list %}
+      <tr>
+        <td style="color: var(--text-muted); font-size: 11px;">{{ loop.index }}</td>
+        <td>
+          <span class="badge {% if sk.tingkat == 'Provinsi' %}badge-amber{% else %}badge-green{% endif %}">
+            {{ sk.tingkat }}
+          </span>
+        </td>
+        <td style="font-weight: 600; color: var(--text-primary);">{{ sk.realokasi_ke }}</td>
+        <td style="font-family: var(--font-mono); font-size: 12px; font-weight: 500;">{{ sk.nomor_sk }}</td>
+        <td>{{ sk.tanggal_sk.strftime('%d/%m/%Y') }}</td>
+        <td>
+          <div style="font-weight: 500;">{{ sk.nama_daerah }}</div>
+          <div style="font-size: 11px; color: var(--text-secondary);">{{ sk.nama_pejabat_dinas }}</div>
+        </td>
+        <td style="text-align: right; font-variant-numeric: tabular-nums; font-weight: 600;">{{ sk.tahun_anggaran }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<!-- Modal Tambah SK -->
+<div id="modalSK" class="modal-backdrop" style="display:none;">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h3 class="modal-title">Input Dasar SK Realokasi Baru</h3>
+      <button type="button" class="modal-close" onclick="document.getElementById('modalSK').style.display='none'">&times;</button>
+    </div>
+    <form method="POST" action="{{ url_for('create_sk') }}">
+      <div class="form-grid-2">
+        <div class="form-group">
+          <label class="form-label">Tingkat Wilayah</label>
+          <select name="tingkat" class="form-select" required>
+            <option value="Kabupaten">Kabupaten</option>
+            <option value="Provinsi">Provinsi</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Tahap Realokasi</label>
+          <input type="text" name="realokasi_ke" class="form-input" placeholder="Contoh: Realokasi VI (Keenam)" required>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Nomor Surat Keputusan (SK)</label>
+        <input type="text" name="nomor_sk" class="form-input" placeholder="049/110/DP/XII/2022" required>
+      </div>
+      <div class="form-grid-2">
+        <div class="form-group">
+          <label class="form-label">Tanggal Penetapan SK</label>
+          <input type="date" name="tanggal_sk" class="form-input" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Tahun Anggaran</label>
+          <input type="number" name="tahun_anggaran" class="form-input" value="2022" required>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Nama Pejabat / Dinas Terkait</label>
+        <input type="text" name="nama_pejabat_dinas" class="form-input" placeholder="Kepala Dinas Pertanian Kabupaten Tana Toraja" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Nama Daerah Penetap</label>
+        <input type="text" name="nama_daerah" class="form-input" placeholder="Kabupaten Tana Toraja" required>
+      </div>
+      <div class="modal-actions">
+        <button type="button" onclick="document.getElementById('modalSK').style.display='none'" class="btn btn-secondary">Batal</button>
+        <button type="submit" class="btn btn-primary">Simpan SK</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

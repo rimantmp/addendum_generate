@@ -1,0 +1,335 @@
+{% extends "base.html" %}
+
+{% block title %}Buat Addendum Baru{% endblock %}
+{% block breadcrumb %}Buat Addendum Baru{% endblock %}
+
+{% block content %}
+<div class="page-title-group">
+  <div>
+    <h1 class="page-headline">Buat Dokumen Addendum Baru</h1>
+    <p class="page-subheadline">
+      Nomor surat terisi otomatis. Anda dapat menambahkan beberapa tabel kecamatan sekaligus sebelum menyimpan.
+    </p>
+  </div>
+  <div class="page-action-buttons">
+    <a href="{{ url_for('index') }}" class="btn btn-secondary">
+      Batal
+    </a>
+  </div>
+</div>
+
+<form method="POST" action="{{ url_for('create_addendum') }}">
+  <!-- 1. IDENTITAS DOKUMEN & LEGALITAS -->
+  <div class="form-card" style="margin-bottom: 24px;">
+    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 16px; border-bottom: 1px solid var(--border); padding-bottom: 10px;">
+      <span class="badge badge-amber" style="font-size: 11px;">LANGKAH 1</span>
+      <h3 style="font-size: 14.5px; font-weight: 700; color: var(--text-primary); margin: 0;">
+        Identitas Dokumen & Penomoran Otomatis
+      </h3>
+    </div>
+
+    <div class="form-grid-3">
+      <div class="form-group">
+        <label class="form-label">Kios Pengecer Mitra</label>
+        <select id="select_kios" name="perjanjian_induk_id" class="form-select" required>
+          {% for pi in perjanjian_induk_list %}
+            <option value="{{ pi.id }}" data-kec="{{ pi.kios.kecamatan }}">{{ pi.kios.nama_kios }} ({{ pi.kios.nama_pemilik }} - Kec. {{ pi.kios.kecamatan }})</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Nomor Urut Surat</label>
+        <input type="number" id="input_nomor_urut" class="form-input" value="{{ suggested_urut }}" min="1" required>
+        <div style="font-size: 11px; color: var(--text-muted); margin-top: 3px;">Auto-increment (misal: 1 &rarr; 01)</div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Addendum Ke (Romawi)</label>
+        <input type="text" name="addendum_ke" class="form-input" value="I" placeholder="Contoh: I, II, III" required>
+      </div>
+    </div>
+
+    <div class="form-grid-3" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;">
+      <div class="form-group">
+        <label class="form-label">Tanggal Penandatanganan (TTD)</label>
+        <input type="date" id="input_tanggal_ttd" name="tanggal_ttd" class="form-input" value="{{ default_date }}" required>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Tanggal Berlaku Efektif</label>
+        <input type="date" name="tanggal_berlaku_efektif" class="form-input" value="{{ default_date }}" required>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">
+          Masa Berlaku SPJB Sampai
+          <span style="font-size: 10.5px; font-weight: normal; color: var(--primary);">(Poin A)</span>
+        </label>
+        <input type="date" name="tanggal_spjb_sampai" class="form-input" value="2022-12-31" required>
+      </div>
+    </div>
+
+    <div class="form-grid-2">
+      <div class="form-group">
+        <label class="form-label">
+          Nomor Surat Addendum
+          <span style="font-size: 10.5px; font-weight: normal; color: var(--primary);">(Format Baku Otomatis)</span>
+        </label>
+        <input type="text" id="input_nomor_addendum" name="nomor_addendum" class="form-input" value="{{ suggested_nomor }}" required>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">
+          Nomor Lampiran 2
+          <span style="font-size: 10.5px; font-weight: normal; color: var(--primary);">(Format Baku Lampiran)</span>
+        </label>
+        <input type="text" id="input_nomor_lampiran_2" name="nomor_lampiran_2" class="form-input" value="{{ suggested_lampiran }}" required>
+      </div>
+    </div>
+
+    <div class="form-grid-2">
+      <div class="form-group">
+        <label class="form-label">Dasar SK Realokasi Provinsi (Opsional)</label>
+        <select name="sk_provinsi_id" class="form-select">
+          <option value="">-- Tidak Digunakan / Lewati --</option>
+          {% for sk in sk_provinsi_list %}
+            <option value="{{ sk.id }}">{{ sk.nomor_sk }} - {{ sk.realokasi_ke }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Dasar SK Realokasi Kabupaten</label>
+        <select name="sk_kabupaten_id" class="form-select">
+          {% for sk in sk_kabupaten_list %}
+            <option value="{{ sk.id }}">{{ sk.nomor_sk }} - {{ sk.realokasi_ke }}</option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. TABEL-TABEL ALOKASI KECAMATAN -->
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+    <div>
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <span class="badge badge-green" style="font-size: 11px;">LANGKAH 2</span>
+        <h2 style="font-size: 16px; font-weight: 700; color: var(--text-primary); margin: 0;">
+          Matriks Alokasi Kuota Bulanan (Ton/Liter)
+        </h2>
+      </div>
+      <p style="font-size: 12px; color: var(--text-secondary); margin-top: 2px;">
+        Gunakan tombol di kanan untuk menambahkan kecamatan jika kios melayani lebih dari satu wilayah.
+      </p>
+    </div>
+
+    <button type="button" onclick="tambahTabelKecamatan()" class="btn btn-secondary">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+      + Tambah Tabel Kecamatan Lain
+    </button>
+  </div>
+
+  <!-- Container Dynamic Tables -->
+  <div id="kecamatan_tables_container">
+    <!-- Block 1 (Default) -->
+    <div class="form-card kecamatan-card" id="card_kec_0" style="margin-bottom: 20px;">
+      <input type="hidden" name="kecamatan_blocks" value="block_0">
+      
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid var(--border); padding-bottom: 10px;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <label class="form-label" style="margin-bottom: 0; font-size: 12.5px;">Wilayah Kecamatan:</label>
+          <input type="text" id="kec_name_0" name="kecamatan_name_block_0" class="form-input" 
+                 value="{{ default_kios_kec }}" placeholder="Contoh: BITTUANG" 
+                 style="width: 220px; text-transform: uppercase; font-weight: 700; color: var(--primary);" required>
+        </div>
+        <div style="display: flex; gap: 8px; align-items: center;">
+          <button type="button" class="btn btn-secondary btn-sm" onclick="openExcelModalForTable(this)" title="Salin & tempel tabel alokasi langsung dari Microsoft Excel">
+            📋 Paste dari Excel
+          </button>
+          <button type="button" class="btn btn-danger-subtle btn-sm btn-hapus-card" onclick="hapusTabelKecamatan('card_kec_0')" style="display: none;">
+            Hapus Tabel
+          </button>
+        </div>
+      </div>
+
+      <table class="matrix-input-table">
+        <thead>
+          <tr>
+            <th style="width: 40px;">NO</th>
+            <th style="width: 140px; text-align: left; padding-left: 10px;">BULAN</th>
+            {% for p in jenis_pupuk_list %}
+              <th>{{ p.kode }}</th>
+            {% endfor %}
+          </tr>
+        </thead>
+        <tbody>
+          {% for b_idx, bulan_nama in bulan_list %}
+          <tr class="{% if b_idx in [3, 6, 9] %}quarter-end{% endif %}">
+            <td style="color: var(--text-muted); font-size: 11px;">{{ b_idx }}</td>
+            <td class="col-bulan-title">{{ bulan_nama }}</td>
+            {% for p in jenis_pupuk_list %}
+              <td>
+                <input type="number" step="any" min="0" name="kuota_block_0_{{ b_idx }}_{{ p.id }}" value="0">
+              </td>
+            {% endfor %}
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Action Bar -->
+  <div style="position: sticky; bottom: 16px; z-index: 10; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(4px); border: 1px solid var(--border-strong); padding: 12px 18px; border-radius: var(--radius-md); box-shadow: var(--shadow-md); display: flex; justify-content: flex-end; gap: 10px;">
+    <a href="{{ url_for('index') }}" class="btn btn-secondary">Batal</a>
+    <button type="submit" class="btn btn-primary btn-lg">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+      Simpan & Terbitkan Addendum
+    </button>
+  </div>
+</form>
+
+<script>
+  const ROMAWI_BULAN = {
+    1: 'I', 2: 'II', 3: 'III', 4: 'IV', 5: 'V', 6: 'VI',
+    7: 'VII', 8: 'VIII', 9: 'IX', 10: 'X', 11: 'XI', 12: 'XII'
+  };
+
+  const inputUrut = document.getElementById('input_nomor_urut');
+  const inputTgl = document.getElementById('input_tanggal_ttd');
+  const inputNomor = document.getElementById('input_nomor_addendum');
+  const inputLampiran = document.getElementById('input_nomor_lampiran_2');
+  const selectKios = document.getElementById('select_kios');
+
+  function updateNomorOtomatis() {
+    const urutVal = parseInt(inputUrut.value) || 1;
+    const urutStr = String(urutVal).padStart(2, '0');
+
+    const tglVal = inputTgl.value;
+    if (!tglVal) return;
+
+    const parts = tglVal.split('-');
+    if (parts.length === 3) {
+      const tahun = parts[0];
+      const bulan = parseInt(parts[1]);
+      const romawi = ROMAWI_BULAN[bulan] || 'I';
+
+      inputNomor.value = `${urutStr}/SP/CV/ST/${romawi}/${tahun}`;
+      inputLampiran.value = `${urutStr}/SP/CV.ST${romawi}/${tahun}`;
+    }
+  }
+
+  inputUrut.addEventListener('input', updateNomorOtomatis);
+  inputTgl.addEventListener('change', updateNomorOtomatis);
+
+  selectKios.addEventListener('change', function() {
+    const opt = selectKios.options[selectKios.selectedIndex];
+    const kec = opt.getAttribute('data-kec');
+    const firstKecInput = document.getElementById('kec_name_0');
+    if (kec && firstKecInput) {
+      firstKecInput.value = kec.toUpperCase();
+    }
+  });
+
+  let blockCounter = 1;
+  const pupukList = [
+    {% for p in jenis_pupuk_list %}
+      { id: {{ p.id }}, kode: "{{ p.kode }}" },
+    {% endfor %}
+  ];
+  const bulanList = [
+    {% for b_idx, bulan_nama in bulan_list %}
+      { no: {{ b_idx }}, nama: "{{ bulan_nama }}" },
+    {% endfor %}
+  ];
+
+  function tambahTabelKecamatan(namaKec = "") {
+    const blockKey = "block_" + blockCounter;
+    const cardId = "card_kec_" + blockCounter;
+    blockCounter++;
+
+    let pupukHeaderHtml = pupukList.map(p => `<th>${p.kode}</th>`).join('');
+
+    let bulanRowsHtml = bulanList.map(b => {
+      let inputsHtml = pupukList.map(p => `
+        <td>
+          <input type="number" step="any" min="0" name="kuota_${blockKey}_${b.no}_${p.id}" value="0">
+        </td>
+      `).join('');
+
+      let qClass = (b.no === 3 || b.no === 6 || b.no === 9) ? 'class="quarter-end"' : '';
+
+      return `
+        <tr ${qClass}>
+          <td style="color: var(--text-muted); font-size: 11px;">${b.no}</td>
+          <td class="col-bulan-title">${b.nama}</td>
+          ${inputsHtml}
+        </tr>
+      `;
+    }).join('');
+
+    const newCardHtml = `
+      <div class="form-card kecamatan-card" id="${cardId}" style="margin-bottom: 20px;">
+        <input type="hidden" name="kecamatan_blocks" value="${blockKey}">
+        
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid var(--border); padding-bottom: 10px;">
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <label class="form-label" style="margin-bottom: 0; font-size: 12.5px;">Wilayah Kecamatan:</label>
+            <input type="text" name="kecamatan_name_${blockKey}" class="form-input" 
+                   value="${namaKec}" placeholder="Contoh: MASANDA" 
+                   style="width: 220px; text-transform: uppercase; font-weight: 700; color: var(--primary);" required>
+          </div>
+          <div style="display: flex; gap: 8px; align-items: center;">
+            <button type="button" class="btn btn-secondary btn-sm" onclick="openExcelModalForTable(this)" title="Salin & tempel tabel alokasi langsung dari Microsoft Excel">
+              📋 Paste dari Excel
+            </button>
+            <button type="button" class="btn btn-danger-subtle btn-sm btn-hapus-card" onclick="hapusTabelKecamatan('${cardId}')">
+              Hapus Tabel
+            </button>
+          </div>
+        </div>
+
+        <table class="matrix-input-table">
+          <thead>
+            <tr>
+              <th style="width: 40px;">NO</th>
+              <th style="width: 140px; text-align: left; padding-left: 10px;">BULAN</th>
+              ${pupukHeaderHtml}
+            </tr>
+          </thead>
+          <tbody>
+            ${bulanRowsHtml}
+          </tbody>
+        </table>
+      </div>
+    `;
+
+    document.getElementById('kecamatan_tables_container').insertAdjacentHTML('beforeend', newCardHtml);
+    const newCard = document.getElementById(cardId);
+    if (newCard && typeof attachTableInlinePaste === 'function') {
+      attachTableInlinePaste(newCard.querySelector('.matrix-input-table'));
+    }
+    updateTombolHapusKecamatan();
+  }
+
+  function hapusTabelKecamatan(cardId) {
+    const card = document.getElementById(cardId);
+    if (card) {
+      card.remove();
+      updateTombolHapusKecamatan();
+    }
+  }
+
+  function updateTombolHapusKecamatan() {
+    const cards = document.querySelectorAll('.kecamatan-card');
+    const hapusButtons = document.querySelectorAll('.btn-hapus-card');
+    if (cards.length > 1) {
+      hapusButtons.forEach(btn => btn.style.display = 'inline-flex');
+    } else {
+      hapusButtons.forEach(btn => btn.style.display = 'none');
+    }
+  }
+</script>
+<script src="{{ url_for('static', filename='excel_paste.js') }}"></script>
+{% endblock %}

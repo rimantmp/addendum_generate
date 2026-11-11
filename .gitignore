@@ -1,0 +1,18 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+.venv
+
+# Temporary runtime & user files
+edge_profile/
+generated_docs/
+backups/*.db
+*.log
+test.html
+test_gen.py

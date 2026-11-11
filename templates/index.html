@@ -1,0 +1,149 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard Addendum{% endblock %}
+{% block breadcrumb %}Daftar Addendum{% endblock %}
+
+{% block content %}
+<div class="page-title-group">
+  <div>
+    <h1 class="page-headline">Dokumen Addendum Perjanjian</h1>
+    <p class="page-subheadline">Penerbitan dan rekapitulasi surat addendum realokasi pupuk bersubsidi resmi.</p>
+  </div>
+  <div class="page-action-buttons">
+    <a href="{{ url_for('batch_zip') }}" class="btn btn-secondary">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+      Batch ZIP
+    </a>
+    <a href="{{ url_for('create_addendum') }}" class="btn btn-primary">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+      Buat Addendum Baru
+    </a>
+  </div>
+</div>
+
+<!-- KPI Cards -->
+<div class="kpi-grid">
+  <div class="kpi-card">
+    <div class="kpi-caption">Dokumen Addendum</div>
+    <div class="kpi-number">{{ total_addendum }}</div>
+    <div class="kpi-hint">Tahun Anggaran {{ tahun_anggaran }}</div>
+  </div>
+
+  <div class="kpi-card">
+    <div class="kpi-caption">Kios Pengecer Aktif</div>
+    <div class="kpi-number">{{ total_kios }}</div>
+    <div class="kpi-hint">Wilayah Kabupaten Tana Toraja</div>
+  </div>
+
+  <div class="kpi-card">
+    <div class="kpi-caption">Total Alokasi NPK</div>
+    <div class="kpi-number">{{ total_npk }} <span style="font-size: 14px; font-weight: normal; color: var(--text-secondary);">Ton</span></div>
+    <div class="kpi-hint">Seluruh kecamatan terdaftar</div>
+  </div>
+
+  <div class="kpi-card">
+    <div class="kpi-caption">Dasar SK Terakhir</div>
+    <div class="kpi-number" style="font-size: 17px; line-height: 1.35; padding-top: 4px;">
+      {{ sk_terakhir.realokasi_ke if sk_terakhir else '-' }}
+    </div>
+    <div class="kpi-hint">{{ sk_terakhir.nomor_sk if sk_terakhir else 'Belum ada SK' }}</div>
+  </div>
+</div>
+
+<!-- Table Filter & Search -->
+<div class="table-filter-bar">
+  <div class="search-input-box">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+    <input type="text" id="searchInput" placeholder="Cari nomor addendum, kios, kecamatan..." onkeyup="filterTable()">
+  </div>
+
+  <div style="font-size: 12px; color: var(--text-secondary);">
+    Total: <b style="color: var(--text-primary);">{{ addendums|length }}</b> dokumen
+  </div>
+</div>
+
+<!-- Data Table -->
+<div class="table-wrapper with-filter">
+  <table class="data-table" id="addendumTable">
+    <thead>
+      <tr>
+        <th style="width: 45px;">NO</th>
+        <th>NOMOR ADDENDUM</th>
+        <th>NAMA KIOS / MITRA</th>
+        <th>PENANGGUNG JAWAB</th>
+        <th>WILAYAH KECAMATAN</th>
+        <th style="text-align: right;">TOTAL KUOTA</th>
+        <th style="text-align: right; width: 170px;">AKSI CETAK / EDIT</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for item in addendums %}
+      <tr>
+        <td style="color: var(--text-muted); font-variant-numeric: tabular-nums;">{{ loop.index }}</td>
+        <td>
+          <a href="{{ url_for('addendum_detail', addendum_id=item.id) }}" style="font-weight: 600; color: var(--primary); text-decoration: none;">
+            {{ item.nomor_addendum }}
+          </a>
+          <div style="font-size: 11px; color: var(--text-muted);">Addendum- {{ item.addendum_ke }} &bull; Berlaku: {{ item.tanggal_berlaku_efektif.strftime('%d/%m/%Y') }}</div>
+        </td>
+        <td>
+          <div style="font-weight: 600; color: var(--text-primary);">{{ item.perjanjian_induk.kios.nama_kios }}</div>
+          <div style="font-size: 11px; color: var(--text-muted);">Kode: {{ item.perjanjian_induk.kios.kode_kios or '-' }}</div>
+        </td>
+        <td>
+          <div>{{ item.perjanjian_induk.kios.nama_pemilik }}</div>
+          <div style="font-size: 11px; color: var(--text-muted);">{{ item.perjanjian_induk.kios.jabatan }}</div>
+        </td>
+        <td>
+          {% if item.daftar_kec %}
+            <div style="display: flex; flex-wrap: wrap; gap: 4px;">
+              {% for kec in item.daftar_kec %}
+                <span class="badge badge-green">Kec. {{ kec }}</span>
+              {% endfor %}
+            </div>
+          {% else %}
+            <span class="badge badge-green">Kec. {{ item.perjanjian_induk.kios.kecamatan }}</span>
+          {% endif %}
+        </td>
+        <td style="text-align: right;">
+          <span style="font-weight: 700; color: var(--text-primary); font-variant-numeric: tabular-nums;">
+            {{ item.total_kuota }} Ton
+          </span>
+        </td>
+        <td style="text-align: right;">
+          <div style="display: inline-flex; gap: 5px; align-items: center;">
+            <a href="{{ url_for('download_pdf', addendum_id=item.id) }}" class="btn btn-pdf btn-sm" title="Unduh PDF Resmi">
+              PDF
+            </a>
+            <a href="{{ url_for('download_docx', addendum_id=item.id) }}" class="btn btn-docx btn-sm" title="Unduh Word (.docx)">
+              DOCX
+            </a>
+            <a href="{{ url_for('addendum_detail', addendum_id=item.id) }}" class="btn btn-secondary btn-sm" title="Buka Detail & Edit Kuota">
+              Detail
+            </a>
+          </div>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<script>
+  function filterTable() {
+    const input = document.getElementById("searchInput");
+    const filter = input.value.toUpperCase();
+    const table = document.getElementById("addendumTable");
+    const tr = table.getElementsByTagName("tr");
+
+    for (let i = 1; i < tr.length; i++) {
+      const text = tr[i].textContent || tr[i].innerText;
+      if (text.toUpperCase().indexOf(filter) > -1) {
+        tr[i].style.display = "";
+      } else {
+        tr[i].style.display = "none";
+      }
+    }
+  }
+</script>
+{% endblock %}
