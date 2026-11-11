@@ -87,7 +87,7 @@
             </button>
 
             <form method="POST" action="{{ url_for('delete_kios', kios_id=k.id) }}" 
-                  onsubmit="return confirm('Apakah Anda yakin ingin menghapus kios ini? Tindakan ini tidak dapat dibatalkan.');" 
+                  onsubmit="return confirmDelete(event, this, 'Hapus kios {{ k.nama_kios|e }}? Data kios dan seluruh perjanjian terkait akan dihapus secara permanen.');" 
                   style="margin: 0;">
               <button type="submit" class="btn btn-danger-subtle btn-sm" style="padding: 4px 8px; font-size: 11px;">
                 Hapus

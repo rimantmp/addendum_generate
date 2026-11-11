@@ -123,7 +123,7 @@
                 <div style="display: inline-flex; gap: 4px;">
                   <a href="{{ url_for('download_local_backup_file', filename=b.name) }}" class="btn btn-secondary btn-sm" style="padding: 2px 7px; font-size: 10.5px;">Unduh</a>
                   <form method="POST" action="{{ url_for('restore_from_snapshot', filename=b.name) }}" 
-                        onsubmit="return confirm('PENTING: Pulihkan database dari snapshot {{ b.name }}? Data saat ini akan digantikan.');" style="margin: 0;">
+                        onsubmit="return confirmAction(event, this, 'Konfirmasi Pemulihan', 'Pulihkan database dari snapshot {{ b.name }}? Data aktif saat ini akan digantikan dengan data snapshot.', 'Ya, Pulihkan Sekarang', '#dc2626');" style="margin: 0;">
                     <button type="submit" class="btn btn-danger-subtle btn-sm" style="padding: 2px 7px; font-size: 10.5px;">Pulihkan</button>
                   </form>
                 </div>
@@ -157,7 +157,7 @@
       </div>
 
       <form method="POST" action="{{ url_for('backup_restore') }}" enctype="multipart/form-data" 
-            onsubmit="return confirm('PERINGATAN: Apakah Anda yakin ingin memulihkan database dari file ini? Seluruh data yang belum dicadangkan akan tertimpa.');">
+            onsubmit="return confirmAction(event, this, 'Konfirmasi Pemulihan File', 'Apakah Anda yakin ingin memulihkan database dari file ini? Seluruh data aktif akan digantikan oleh data dari file cadangan.', 'Ya, Pulihkan Sekarang', '#0f766e');">
         <div class="form-group">
           <label class="form-label">Pilih File Cadangan (.db):</label>
           <input type="file" name="backup_file" accept=".db,.sqlite,.sqlite3" class="form-input" style="padding: 6px;" required>

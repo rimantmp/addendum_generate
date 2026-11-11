@@ -314,11 +314,25 @@
   }
 
   function hapusTabelKecamatan(cardId) {
-    const card = document.getElementById(cardId);
-    if (card) {
-      card.remove();
-      updateTombolHapusKecamatan();
-    }
+    Swal.fire({
+      title: 'Hapus Tabel Kecamatan?',
+      text: 'Tabel alokasi untuk kecamatan ini akan dihapus dari form.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#dc2626',
+      cancelButtonColor: '#64748b',
+      confirmButtonText: 'Ya, Hapus',
+      cancelButtonText: 'Batal',
+      reverseButtons: true
+    }).then((result) => {
+      if (result.isConfirmed) {
+        const card = document.getElementById(cardId);
+        if (card) {
+          card.remove();
+          updateTombolHapusKecamatan();
+        }
+      }
+    });
   }
 
   function updateTombolHapusKecamatan() {

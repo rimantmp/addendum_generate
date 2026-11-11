@@ -840,3 +840,31 @@ table.data-table tbody tr:hover td {
   from { transform: translateY(10px); opacity: 0; }
   to { transform: translateY(0); opacity: 1; }
 }
+
+/* SweetAlert2 Enterprise Customizations */
+.swal2-enterprise-popup {
+  font-family: var(--font-sans) !important;
+  border-radius: var(--radius-md) !important;
+  box-shadow: var(--shadow-modal) !important;
+  padding: 24px !important;
+  border: 1px solid var(--border) !important;
+}
+
+.swal2-title {
+  font-size: 17px !important;
+  font-weight: 700 !important;
+  color: var(--text-primary) !important;
+}
+
+.swal2-html-container {
+  font-size: 13.5px !important;
+  color: var(--text-secondary) !important;
+  line-height: 1.5 !important;
+}
+
+.swal2-confirm, .swal2-cancel {
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  border-radius: var(--radius-sm) !important;
+  padding: 8px 18px !important;
+}

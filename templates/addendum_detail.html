@@ -125,11 +125,9 @@
             </span>
             
             {% if kecamatan_tables|length > 1 %}
-            <button type="submit" 
-                    formaction="{{ url_for('delete_kecamatan_from_addendum', addendum_id=addendum.id) }}"
-                    name="nama_kecamatan" 
-                    value="{{ k_item.kecamatan }}"
-                    onclick="return confirm('Hapus seluruh alokasi untuk Kecamatan {{ k_item.kecamatan }}?');"
+            <button type="button" 
+                    data-action="{{ url_for('delete_kecamatan_from_addendum', addendum_id=addendum.id) }}"
+                    onclick="confirmDeleteKecamatan(this, '{{ k_item.kecamatan }}')"
                     class="btn btn-danger-subtle btn-sm" title="Hapus tabel kecamatan ini">
               Hapus Kecamatan
             </button>
@@ -265,6 +263,31 @@
     var m = document.getElementById('modalSpjbExp');
     if (e.target == m) m.style.display = 'none';
   });
+
+  function confirmDeleteKecamatan(btn, kecName) {
+    Swal.fire({
+      title: 'Hapus Tabel Kecamatan?',
+      text: `Seluruh alokasi kuota untuk Kecamatan ${kecName} pada addendum ini akan dihapus.`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#dc2626',
+      cancelButtonColor: '#64748b',
+      confirmButtonText: 'Ya, Hapus Sekarang',
+      cancelButtonText: 'Batal',
+      reverseButtons: true
+    }).then((result) => {
+      if (result.isConfirmed) {
+        const form = btn.closest('form');
+        const hiddenInput = document.createElement('input');
+        hiddenInput.type = 'hidden';
+        hiddenInput.name = 'nama_kecamatan';
+        hiddenInput.value = kecName;
+        form.appendChild(hiddenInput);
+        form.action = btn.getAttribute('data-action');
+        HTMLFormElement.prototype.submit.call(form);
+      }
+    });
+  }
 </script>
 <script src="{{ url_for('static', filename='excel_paste.js') }}"></script>
 {% endblock %}
