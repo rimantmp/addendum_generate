@@ -78,6 +78,13 @@ def generate_next_nomor_spjb(db, tahun: int = 2022):
         next_num = db.query(Kios).count() + 1
     return generate_nomor_spjb(next_num, tahun)
 
+@app.context_processor
+def inject_global_data():
+    db = get_db()
+    dist = db.query(Distributor).first()
+    return {"app_distributor": dist}
+
+
 @app.route("/")
 def index():
     db = get_db()
@@ -654,6 +661,56 @@ def batch_delete_addendum():
     db.commit()
     flash(f"Sebanyak {deleted_count} dokumen Addendum berhasil dihapus secara masal!", "success")
     return redirect(url_for("index"))
+
+
+# ==========================================
+# PROFIL DISTRIBUTOR (PIHAK PERTAMA)
+# ==========================================
+@app.route("/distributor", methods=["GET"])
+def distributor_profile():
+    db = get_db()
+    distributor = db.query(Distributor).first()
+    if not distributor:
+        distributor = Distributor(
+            nama_perusahaan="CV. SUBUR ANUGERAH SEJAHTERA",
+            nama_pimpinan="LIBERTINY YUEALLA Z. P.",
+            jabatan="DIREKTUR",
+            alamat="Jl. Pembangunan No. 12 Kel. Penanian Kec. Rantepao",
+            kecamatan="Rantepao",
+            kabupaten="Kabupaten Tana Toraja",
+            provinsi="Sulawesi Selatan"
+        )
+        db.add(distributor)
+        db.commit()
+
+    return render_template("distributor_profile.html", distributor=distributor)
+
+
+@app.route("/distributor/update", methods=["POST"])
+def update_distributor():
+    db = get_db()
+    distributor = db.query(Distributor).first()
+    if not distributor:
+        distributor = Distributor()
+        db.add(distributor)
+
+    distributor.nama_perusahaan = request.form.get("nama_perusahaan", "").strip() or "CV. SUBUR ANUGERAH SEJAHTERA"
+    distributor.nama_pimpinan = request.form.get("nama_pimpinan", "").strip() or "LIBERTINY YUEALLA Z. P."
+    distributor.jabatan = request.form.get("jabatan", "").strip() or "DIREKTUR"
+    distributor.alamat = request.form.get("alamat", "").strip() or "-"
+    distributor.kecamatan = request.form.get("kecamatan", "").strip() or "Rantepao"
+    distributor.kabupaten = request.form.get("kabupaten", "").strip() or "Kabupaten Tana Toraja"
+    distributor.provinsi = request.form.get("provinsi", "").strip() or "Sulawesi Selatan"
+
+    db.commit()
+    flash(f"Data Pihak Pertama ({distributor.nama_pimpinan} - {distributor.nama_perusahaan}) berhasil diperbarui!", "success")
+
+    redirect_to = request.args.get("redirect_to")
+    addendum_id = request.args.get("addendum_id")
+    if redirect_to == "addendum" and addendum_id:
+        return redirect(url_for("addendum_detail", addendum_id=addendum_id))
+
+    return redirect(url_for("distributor_profile"))
 
 
 # ==========================================

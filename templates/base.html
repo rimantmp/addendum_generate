@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{% block title %}Sistem Addendum{% endblock %} - CV. Subur Anugerah Sejahtera</title>
+  <title>{% block title %}Sistem Addendum{% endblock %} - {{ app_distributor.nama_perusahaan if app_distributor else 'CV. Subur Anugerah Sejahtera' }}</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
@@ -61,6 +61,14 @@
           <span>SK Realokasi Dinas</span>
         </a>
 
+        <a href="{{ url_for('distributor_profile') }}" class="sidebar-nav-item {% if request.endpoint == 'distributor_profile' %}active{% endif %}">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+            <circle cx="12" cy="7" r="4"></circle>
+          </svg>
+          <span>Profil Pihak Pertama</span>
+        </a>
+
         <div class="menu-group-label">Ekspor Masal</div>
         
         <a href="{{ url_for('batch_zip') }}" class="sidebar-nav-item">
@@ -90,7 +98,7 @@
           <span>Database Aktif (SQLite)</span>
         </div>
         <div class="company-badge-name">
-          CV. SUBUR ANUGERAH SEJAHTERA
+          {{ app_distributor.nama_perusahaan if app_distributor else 'CV. SUBUR ANUGERAH SEJAHTERA' }}
         </div>
       </div>
     </aside>
@@ -127,7 +135,7 @@
       </main>
 
       <footer class="app-footer">
-        Sistem Otomatisasi Dokumen Addendum Pupuk Bersubsidi &bull; CV. Subur Anugerah Sejahtera &bull; Versi 2.0
+        Sistem Otomatisasi Dokumen Addendum Pupuk Bersubsidi &bull; {{ app_distributor.nama_perusahaan if app_distributor else 'CV. Subur Anugerah Sejahtera' }} &bull; Versi 2.0
       </footer>
     </div>
   </div>

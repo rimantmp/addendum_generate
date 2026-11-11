@@ -43,7 +43,10 @@
         Identitas Para Pihak
       </h3>
       <div style="margin-bottom: 14px;">
-        <div style="font-size: 10.5px; text-transform: uppercase; color: var(--text-muted); font-weight: 600;">Pihak Pertama (Distributor)</div>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px;">
+          <div style="font-size: 10.5px; text-transform: uppercase; color: var(--text-muted); font-weight: 600;">Pihak Pertama (Distributor)</div>
+          <button type="button" onclick="openEditDistributorModal()" class="btn btn-secondary btn-sm" style="padding: 1px 6px; font-size: 10px;">Ubah</button>
+        </div>
         <div style="font-weight: 600; font-size: 13px; color: var(--text-primary);">{{ addendum.perjanjian_induk.distributor.nama_perusahaan }}</div>
         <div style="font-size: 12px; color: var(--text-secondary);">{{ addendum.perjanjian_induk.distributor.nama_pimpinan }} ({{ addendum.perjanjian_induk.distributor.jabatan }})</div>
       </div>
@@ -353,6 +356,71 @@
   </div>
 </div>
 
+<!-- Modal Ubah Identitas Pihak Pertama (Distributor) -->
+<div id="modalEditDistributor" class="modal-backdrop" style="display: none;">
+  <div class="modal-box" style="max-width: 500px;">
+    <div class="modal-header">
+      <div>
+        <h3 class="modal-title">Ubah Identitas Pihak Pertama</h3>
+        <p style="font-size: 11.5px; color: var(--text-secondary); margin-top: 2px;">
+          Perubahan nama pimpinan atau badan usaha distributor akan diterapkan ke dokumen perjanjian.
+        </p>
+      </div>
+      <button type="button" class="modal-close" onclick="closeEditDistributorModal()">&times;</button>
+    </div>
+
+    <form method="POST" action="{{ url_for('update_distributor', redirect_to='addendum', addendum_id=addendum.id) }}">
+      <div class="form-group">
+        <label class="form-label">Nama Perusahaan (Distributor)</label>
+        <input type="text" name="nama_perusahaan" class="form-input" style="font-weight: 600; text-transform: uppercase;"
+               value="{{ addendum.perjanjian_induk.distributor.nama_perusahaan }}" required>
+      </div>
+
+      <div class="form-grid-2">
+        <div class="form-group">
+          <label class="form-label">Nama Lengkap Pimpinan</label>
+          <input type="text" name="nama_pimpinan" class="form-input" style="font-weight: 600; text-transform: uppercase;"
+                 value="{{ addendum.perjanjian_induk.distributor.nama_pimpinan }}" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Jabatan Pimpinan</label>
+          <input type="text" name="jabatan" class="form-input" style="text-transform: uppercase;"
+                 value="{{ addendum.perjanjian_induk.distributor.jabatan }}" required>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Alamat Kantor</label>
+        <input type="text" name="alamat" class="form-input"
+               value="{{ addendum.perjanjian_induk.distributor.alamat }}" required>
+      </div>
+
+      <div class="form-grid-3">
+        <div class="form-group">
+          <label class="form-label">Kecamatan</label>
+          <input type="text" name="kecamatan" class="form-input"
+                 value="{{ addendum.perjanjian_induk.distributor.kecamatan }}" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Kabupaten</label>
+          <input type="text" name="kabupaten" class="form-input"
+                 value="{{ addendum.perjanjian_induk.distributor.kabupaten }}" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Provinsi</label>
+          <input type="text" name="provinsi" class="form-input"
+                 value="{{ addendum.perjanjian_induk.distributor.provinsi }}" required>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" onclick="closeEditDistributorModal()" class="btn btn-secondary">Batal</button>
+        <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
+      </div>
+    </form>
+  </div>
+</div>
+
 <script>
   function openEditDasarHukumModal() {
     document.getElementById('modalEditDasarHukum').style.display = 'flex';
@@ -386,7 +454,16 @@
   window.addEventListener('click', function(e) {
     var m = document.getElementById('modalEditDasarHukum');
     if (e.target == m) m.style.display = 'none';
+    var md = document.getElementById('modalEditDistributor');
+    if (e.target == md) md.style.display = 'none';
   });
+
+  function openEditDistributorModal() {
+    document.getElementById('modalEditDistributor').style.display = 'flex';
+  }
+  function closeEditDistributorModal() {
+    document.getElementById('modalEditDistributor').style.display = 'none';
+  }
 
   function confirmDeleteKecamatan(btn, kecName) {
     Swal.fire({
