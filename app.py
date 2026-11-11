@@ -590,6 +590,72 @@ def update_dasar_hukum(addendum_id):
     return redirect(url_for("addendum_detail", addendum_id=addendum_id))
 
 
+@app.route("/addendum/<int:addendum_id>/delete", methods=["POST"])
+def delete_addendum(addendum_id):
+    db = get_db()
+    addendum = db.query(Addendum).filter(Addendum.id == addendum_id).first()
+    if not addendum:
+        flash("Dokumen Addendum tidak ditemukan.", "danger")
+        return redirect(url_for("index"))
+
+    nomor = addendum.nomor_addendum
+    kios_nama = addendum.perjanjian_induk.kios.nama_kios if (addendum.perjanjian_induk and addendum.perjanjian_induk.kios) else "Kios"
+
+    # Hapus file PDF/DOCX hasil cetak jika ada di folder OUTPUT_DIR
+    try:
+        kios_clean = kios_nama.replace(" ", "_")
+        pdf_file = os.path.join(OUTPUT_DIR, f"ADDENDUM_{addendum.addendum_ke}_{kios_clean}.pdf")
+        docx_file = os.path.join(OUTPUT_DIR, f"ADDENDUM_{addendum.addendum_ke}_{kios_clean}.docx")
+        if os.path.exists(pdf_file):
+            os.remove(pdf_file)
+        if os.path.exists(docx_file):
+            os.remove(docx_file)
+    except Exception:
+        pass
+
+    db.delete(addendum)
+    db.commit()
+    flash(f"Dokumen Addendum {nomor} ({kios_nama}) berhasil dihapus!", "success")
+    return redirect(url_for("index"))
+
+
+@app.route("/addendum/batch-delete", methods=["POST"])
+def batch_delete_addendum():
+    db = get_db()
+    addendum_ids = request.form.getlist("selected_addendums")
+    if not addendum_ids:
+        flash("Tidak ada dokumen Addendum yang dipilih untuk dihapus.", "warning")
+        return redirect(url_for("index"))
+
+    deleted_count = 0
+    for aid_str in addendum_ids:
+        try:
+            aid = int(aid_str)
+            item = db.query(Addendum).filter(Addendum.id == aid).first()
+            if item:
+                # Bersihkan file cetak
+                try:
+                    kios_n = item.perjanjian_induk.kios.nama_kios if (item.perjanjian_induk and item.perjanjian_induk.kios) else "Kios"
+                    kios_c = kios_n.replace(" ", "_")
+                    pdf_f = os.path.join(OUTPUT_DIR, f"ADDENDUM_{item.addendum_ke}_{kios_c}.pdf")
+                    docx_f = os.path.join(OUTPUT_DIR, f"ADDENDUM_{item.addendum_ke}_{kios_c}.docx")
+                    if os.path.exists(pdf_f):
+                        os.remove(pdf_f)
+                    if os.path.exists(docx_f):
+                        os.remove(docx_f)
+                except Exception:
+                    pass
+
+                db.delete(item)
+                deleted_count += 1
+        except ValueError:
+            continue
+
+    db.commit()
+    flash(f"Sebanyak {deleted_count} dokumen Addendum berhasil dihapus secara masal!", "success")
+    return redirect(url_for("index"))
+
+
 # ==========================================
 # MASTER KIOS: LIST, CREATE, EDIT, DELETE & SPJB
 # ==========================================
