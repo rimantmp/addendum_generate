@@ -117,6 +117,17 @@
             <div class="lan-url">http://{{ local_ip }}:5000</div>
           </div>
         </div>
+
+        {% if session.user_id %}
+        <div style="margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--border-subtle);">
+          <div style="font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted);">Masuk sebagai</div>
+          <div style="font-size: 11.5px; font-weight: 600; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 8px;">{{ session.user_email }}</div>
+          <a href="{{ url_for('logout') }}" class="btn btn-secondary btn-sm sidebar-logout">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+            Keluar
+          </a>
+        </div>
+        {% endif %}
       </div>
     </aside>
 
@@ -171,6 +182,37 @@
   <script>
     function openSidebar()  { document.body.classList.add('sidebar-open'); }
     function closeSidebar() { document.body.classList.remove('sidebar-open'); }
+
+    function closeAllActionMenus() {
+      document.querySelectorAll('.action-menu.open').forEach(function(m){ m.classList.remove('open'); });
+      document.querySelectorAll('.btn-kebab.is-active').forEach(function(b){ b.classList.remove('is-active'); });
+    }
+    function toggleActionMenu(btn) {
+      var menu = btn.parentElement.querySelector('.action-menu');
+      if (!menu) return;
+      var isOpen = menu.classList.contains('open');
+      closeAllActionMenus();
+      if (isOpen) return;
+      menu.style.visibility = 'hidden';
+      menu.classList.add('open');
+      btn.classList.add('is-active');
+      var r = btn.getBoundingClientRect();
+      var mw = menu.offsetWidth, mh = menu.offsetHeight, pad = 8;
+      var left = r.right - mw;
+      var top = r.bottom + 6;
+      if (top + mh > window.innerHeight - pad) top = r.top - mh - 6;
+      if (left < pad) left = pad;
+      if (left + mw > window.innerWidth - pad) left = window.innerWidth - pad - mw;
+      menu.style.left = left + 'px';
+      menu.style.top = top + 'px';
+      menu.style.visibility = '';
+    }
+    document.addEventListener('click', function(e){
+      if (!e.target.closest('.action-menu') && !e.target.closest('.btn-kebab')) closeAllActionMenus();
+    });
+    document.addEventListener('keydown', function(e){ if (e.key === 'Escape') closeAllActionMenus(); });
+    window.addEventListener('scroll', closeAllActionMenus, true);
+    window.addEventListener('resize', closeAllActionMenus);
 
     function copyLanUrl(url) {
       if (navigator.clipboard && navigator.clipboard.writeText) {

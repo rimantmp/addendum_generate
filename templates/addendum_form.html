@@ -12,20 +12,19 @@
     </p>
   </div>
   <div class="page-action-buttons">
-    <a href="{{ url_for('index') }}" class="btn btn-secondary">
-      Batal
-    </a>
+    <a href="{{ url_for('index') }}" class="btn btn-secondary">Batal</a>
   </div>
 </div>
 
 <form method="POST" action="{{ url_for('create_addendum') }}">
-  <!-- 1. IDENTITAS DOKUMEN & LEGALITAS -->
+  <!-- ============ LANGKAH 1: IDENTITAS DOKUMEN ============ -->
   <div class="form-card" style="margin-bottom: 24px;">
-    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 16px; border-bottom: 1px solid var(--border); padding-bottom: 10px;">
-      <span class="badge badge-amber" style="font-size: 11px;">LANGKAH 1</span>
-      <h3 style="font-size: 14.5px; font-weight: 700; color: var(--text-primary); margin: 0;">
-        Identitas Dokumen & Penomoran Otomatis
-      </h3>
+    <div class="form-section-head">
+      <div class="step-num">1</div>
+      <div>
+        <h3 class="fs-title">Identitas Dokumen &amp; Penomoran Otomatis</h3>
+        <div class="fs-sub">Pilih kios mitra dan tanggal — nomor surat serta lampiran terisi otomatis.</div>
+      </div>
     </div>
 
     <div class="form-grid-3">
@@ -41,7 +40,7 @@
       <div class="form-group">
         <label class="form-label">Nomor Urut Surat</label>
         <input type="number" id="input_nomor_urut" class="form-input" value="{{ suggested_urut }}" min="1" required>
-        <div style="font-size: 11px; color: var(--text-muted); margin-top: 3px;">Auto-increment (misal: 1 &rarr; 01)</div>
+        <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">Auto-increment (misal: 1 &rarr; 01)</div>
       </div>
 
       <div class="form-group">
@@ -50,7 +49,7 @@
       </div>
     </div>
 
-    <div class="form-grid-3" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;">
+    <div class="form-grid-3">
       <div class="form-group">
         <label class="form-label">Tanggal Penandatanganan (TTD)</label>
         <input type="date" id="input_tanggal_ttd" name="tanggal_ttd" class="form-input" value="{{ default_date }}" required>
@@ -64,7 +63,7 @@
       <div class="form-group">
         <label class="form-label">
           Masa Berlaku SPJB Sampai
-          <span style="font-size: 10.5px; font-weight: normal; color: var(--primary);">(Poin A)</span>
+          <span style="font-size: 10.5px; font-weight: normal; color: var(--primary-text);">(Poin A)</span>
         </label>
         <input type="date" name="tanggal_spjb_sampai" class="form-input" value="2022-12-31" required>
       </div>
@@ -74,17 +73,17 @@
       <div class="form-group">
         <label class="form-label">
           Nomor Surat Addendum
-          <span style="font-size: 10.5px; font-weight: normal; color: var(--primary);">(Format Baku Otomatis)</span>
+          <span style="font-size: 10.5px; font-weight: normal; color: var(--primary-text);">(Otomatis)</span>
         </label>
-        <input type="text" id="input_nomor_addendum" name="nomor_addendum" class="form-input" value="{{ suggested_nomor }}" required>
+        <input type="text" id="input_nomor_addendum" name="nomor_addendum" class="form-input" style="font-family: var(--font-mono); font-weight: 600;" value="{{ suggested_nomor }}" required>
       </div>
 
       <div class="form-group">
         <label class="form-label">
           Nomor Lampiran 2
-          <span style="font-size: 10.5px; font-weight: normal; color: var(--primary);">(Format Baku Lampiran)</span>
+          <span style="font-size: 10.5px; font-weight: normal; color: var(--primary-text);">(Otomatis)</span>
         </label>
-        <input type="text" id="input_nomor_lampiran_2" name="nomor_lampiran_2" class="form-input" value="{{ suggested_lampiran }}" required>
+        <input type="text" id="input_nomor_lampiran_2" name="nomor_lampiran_2" class="form-input" style="font-family: var(--font-mono); font-weight: 600;" value="{{ suggested_lampiran }}" required>
       </div>
     </div>
 
@@ -110,23 +109,19 @@
     </div>
   </div>
 
-  <!-- 2. TABEL-TABEL ALOKASI KECAMATAN -->
-  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
-    <div>
-      <div style="display: flex; align-items: center; gap: 8px;">
-        <span class="badge badge-green" style="font-size: 11px;">LANGKAH 2</span>
-        <h2 style="font-size: 16px; font-weight: 700; color: var(--text-primary); margin: 0;">
-          Matriks Alokasi Kuota Bulanan (Ton/Liter)
-        </h2>
+  <!-- ============ LANGKAH 2: MATRIKS ALOKASI ============ -->
+  <div class="section-bar">
+    <div style="display: flex; align-items: flex-start; gap: 12px;">
+      <div class="step-num alt">2</div>
+      <div>
+        <h2 class="fs-title" style="font-size: 16px;">Matriks Alokasi Kuota Bulanan (Ton/Liter)</h2>
+        <div class="fs-sub">Tambahkan kecamatan jika kios melayani lebih dari satu wilayah.</div>
       </div>
-      <p style="font-size: 12px; color: var(--text-secondary); margin-top: 2px;">
-        Gunakan tombol di kanan untuk menambahkan kecamatan jika kios melayani lebih dari satu wilayah.
-      </p>
     </div>
 
     <button type="button" onclick="tambahTabelKecamatan()" class="btn btn-secondary">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-      + Tambah Tabel Kecamatan Lain
+      Tambah Tabel Kecamatan
     </button>
   </div>
 
@@ -135,15 +130,14 @@
     <!-- Block 1 (Default) -->
     <div class="form-card kecamatan-card" id="card_kec_0" style="margin-bottom: 20px;">
       <input type="hidden" name="kecamatan_blocks" value="block_0">
-      
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid var(--border); padding-bottom: 10px;">
-        <div style="display: flex; align-items: center; gap: 10px;">
-          <label class="form-label" style="margin-bottom: 0; font-size: 12.5px;">Wilayah Kecamatan:</label>
-          <input type="text" id="kec_name_0" name="kecamatan_name_block_0" class="form-input" 
-                 value="{{ default_kios_kec }}" placeholder="Contoh: BITTUANG" 
-                 style="width: 220px; text-transform: uppercase; font-weight: 700; color: var(--primary);" required>
+
+      <div class="kec-head">
+        <div class="kec-field-inline">
+          <label class="form-label" style="margin-bottom: 0; white-space: nowrap;">Wilayah Kecamatan</label>
+          <input type="text" id="kec_name_0" name="kecamatan_name_block_0" class="form-input"
+                 value="{{ default_kios_kec }}" placeholder="Contoh: BITTUANG" required>
         </div>
-        <div style="display: flex; gap: 8px; align-items: center;">
+        <div class="kec-actions">
           <button type="button" class="btn btn-secondary btn-sm" onclick="openExcelModalForTable(this)" title="Salin & tempel tabel alokasi langsung dari Microsoft Excel">
             📋 Paste dari Excel
           </button>
@@ -181,11 +175,11 @@
   </div>
 
   <!-- Action Bar -->
-  <div style="position: sticky; bottom: 16px; z-index: 10; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(4px); border: 1px solid var(--border-strong); padding: 12px 18px; border-radius: var(--radius-md); box-shadow: var(--shadow-md); display: flex; justify-content: flex-end; gap: 10px;">
+  <div class="sticky-action-bar">
     <a href="{{ url_for('index') }}" class="btn btn-secondary">Batal</a>
     <button type="submit" class="btn btn-primary btn-lg">
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
-      Simpan & Terbitkan Addendum
+      Simpan &amp; Terbitkan Addendum
     </button>
   </div>
 </form>
@@ -272,15 +266,14 @@
     const newCardHtml = `
       <div class="form-card kecamatan-card" id="${cardId}" style="margin-bottom: 20px;">
         <input type="hidden" name="kecamatan_blocks" value="${blockKey}">
-        
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid var(--border); padding-bottom: 10px;">
-          <div style="display: flex; align-items: center; gap: 10px;">
-            <label class="form-label" style="margin-bottom: 0; font-size: 12.5px;">Wilayah Kecamatan:</label>
-            <input type="text" name="kecamatan_name_${blockKey}" class="form-input" 
-                   value="${namaKec}" placeholder="Contoh: MASANDA" 
-                   style="width: 220px; text-transform: uppercase; font-weight: 700; color: var(--primary);" required>
+
+        <div class="kec-head">
+          <div class="kec-field-inline">
+            <label class="form-label" style="margin-bottom: 0; white-space: nowrap;">Wilayah Kecamatan</label>
+            <input type="text" name="kecamatan_name_${blockKey}" class="form-input"
+                   value="${namaKec}" placeholder="Contoh: MASANDA" required>
           </div>
-          <div style="display: flex; gap: 8px; align-items: center;">
+          <div class="kec-actions">
             <button type="button" class="btn btn-secondary btn-sm" onclick="openExcelModalForTable(this)" title="Salin & tempel tabel alokasi langsung dari Microsoft Excel">
               📋 Paste dari Excel
             </button>

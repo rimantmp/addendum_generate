@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Masuk - Sistem Generator Addendum</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="login-page">
+  <div class="login-wrap">
+    <div class="login-card">
+      <div class="login-brand">
+        <div class="brand-icon-wrapper">AG</div>
+        <div class="brand-titles">
+          <div class="brand-main-title">Generator Addendum</div>
+          <div class="brand-sub-title">Pupuk Bersubsidi</div>
+        </div>
+      </div>
+
+      <div class="login-title">Masuk ke Sistem</div>
+      <div class="login-sub">Silakan masukkan email dan kata sandi Anda.</div>
+
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          {% for category, message in messages %}
+            <div class="alert alert-{{ 'danger' if category == 'danger' else 'success' }}" style="margin-bottom: 16px;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+              <span>{{ message }}</span>
+            </div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+
+      <form method="POST" action="{{ url_for('login') }}">
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <input type="email" name="email" class="form-input" placeholder="admin@mail.com" autofocus required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Kata Sandi</label>
+          <div class="pw-wrap">
+            <input type="password" name="password" id="login_password" class="form-input" placeholder="Masukkan kata sandi" required>
+            <button type="button" class="pw-toggle" onclick="togglePw()" aria-label="Tampilkan sandi" title="Tampilkan / sembunyikan sandi">
+              <svg id="pw_eye" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+            </button>
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-lg" style="width: 100%; margin-top: 6px;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path><polyline points="10 17 15 12 10 7"></polyline><line x1="15" y1="12" x2="3" y2="12"></line></svg>
+          Masuk
+        </button>
+      </form>
+
+      <div class="login-hint">
+        Akun default &mdash; Email: <b>admin@mail.com</b> &bull; Sandi: <b>password</b>
+      </div>
+    </div>
+
+    <div class="login-foot">
+      Sistem Otomatisasi Dokumen Addendum Pupuk Bersubsidi &bull; Versi 3.0
+    </div>
+  </div>
+
+  <script>
+    function togglePw() {
+      var inp = document.getElementById('login_password');
+      inp.type = inp.type === 'password' ? 'text' : 'password';
+    }
+  </script>
+</body>
+</html>

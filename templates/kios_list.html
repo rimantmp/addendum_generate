@@ -39,7 +39,7 @@
         <th>PENANGGUNG JAWAB</th>
         <th style="width: 175px;">NOMOR SPJB</th>
         <th>ALAMAT & KECAMATAN</th>
-        <th style="text-align: right; width: 250px;">DOKUMEN & AKSI</th>
+        <th style="text-align: center; width: 64px;">AKSI</th>
       </tr>
     </thead>
     <tbody>
@@ -75,38 +75,43 @@
           <div>{{ k.alamat }}</div>
           <div style="font-size: 11.5px; color: var(--text-secondary); font-weight: 500;">Kec. {{ k.kecamatan }}</div>
         </td>
-        <td style="text-align: right;">
-          <div style="display: inline-flex; gap: 4px; align-items: center; justify-content: flex-end;">
-            <!-- Unduh SPJB Button Group -->
-            <a href="{{ url_for('spjb_pdf', kios_id=k.id) }}" class="btn btn-secondary btn-sm" title="Unduh SPJB format PDF" style="padding: 4px 8px; font-size: 11px; display: inline-flex; align-items: center; gap: 4px;">
-              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="12" y1="18" x2="12" y2="12"></line><line x1="9" y1="15" x2="15" y2="15"></line></svg>
-              SPJB (PDF)
-            </a>
-            <a href="{{ url_for('spjb_docx', kios_id=k.id) }}" class="btn btn-secondary btn-sm" title="Unduh SPJB format Word DOCX" style="padding: 4px 8px; font-size: 11px;">
-              DOCX
-            </a>
-
-            <button type="button" class="btn btn-secondary btn-sm" style="padding: 4px 8px; font-size: 11px;"
-                    data-id="{{ k.id }}"
-                    data-nama="{{ k.nama_kios|e }}"
-                    data-pemilik="{{ k.nama_pemilik|e }}"
-                    data-jabatan="{{ k.jabatan|e }}"
-                    data-kode="{{ (k.kode_kios or '')|e }}"
-                    data-spjb="{{ (k.nomor_spjb or '')|e }}"
-                    data-spjb-exp="{{ k.perjanjian_induk[0].tanggal_berlaku_sampai.strftime('%Y-%m-%d') if (k.perjanjian_induk and k.perjanjian_induk[0].tanggal_berlaku_sampai) else '2022-12-31' }}"
-                    data-kecamatan="{{ k.kecamatan|e }}"
-                    data-alamat="{{ k.alamat|e }}"
-                    onclick="openEditModalFromBtn(this)">
-              Edit
+        <td style="text-align: center;">
+          <div class="action-menu-wrap">
+            <button type="button" class="btn-kebab" onclick="toggleActionMenu(this)" aria-label="Aksi kios" title="Aksi">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.6"></circle><circle cx="12" cy="12" r="1.6"></circle><circle cx="12" cy="19" r="1.6"></circle></svg>
             </button>
-
-            <form method="POST" action="{{ url_for('delete_kios', kios_id=k.id) }}" 
-                  onsubmit="return confirmDelete(event, this, 'Hapus kios {{ k.nama_kios|e }}? Data kios dan seluruh perjanjian terkait akan dihapus secara permanen.');" 
-                  style="margin: 0;">
-              <button type="submit" class="btn btn-danger-subtle btn-sm" style="padding: 4px 8px; font-size: 11px;">
-                Hapus
+            <div class="action-menu">
+              <a class="mi-pdf" href="{{ url_for('spjb_pdf', kios_id=k.id) }}" title="Unduh SPJB format PDF">
+                <span class="mi-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg></span>
+                Unduh SPJB (PDF)
+              </a>
+              <a class="mi-docx" href="{{ url_for('spjb_docx', kios_id=k.id) }}" title="Unduh SPJB format Word">
+                <span class="mi-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg></span>
+                Unduh SPJB (Word)
+              </a>
+              <button type="button"
+                      data-id="{{ k.id }}"
+                      data-nama="{{ k.nama_kios|e }}"
+                      data-pemilik="{{ k.nama_pemilik|e }}"
+                      data-jabatan="{{ k.jabatan|e }}"
+                      data-kode="{{ (k.kode_kios or '')|e }}"
+                      data-spjb="{{ (k.nomor_spjb or '')|e }}"
+                      data-spjb-exp="{{ k.perjanjian_induk[0].tanggal_berlaku_sampai.strftime('%Y-%m-%d') if (k.perjanjian_induk and k.perjanjian_induk[0].tanggal_berlaku_sampai) else '2022-12-31' }}"
+                      data-kecamatan="{{ k.kecamatan|e }}"
+                      data-alamat="{{ k.alamat|e }}"
+                      onclick="closeAllActionMenus(); openEditModalFromBtn(this)">
+                <span class="mi-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4z"></path></svg></span>
+                Edit Data Kios
               </button>
-            </form>
+              <div class="mi-divider"></div>
+              <form method="POST" action="{{ url_for('delete_kios', kios_id=k.id) }}"
+                    onsubmit="return confirmDelete(event, this, 'Hapus kios {{ k.nama_kios|e }}? Data kios dan seluruh perjanjian terkait akan dihapus secara permanen.');">
+                <button type="submit" class="mi-danger">
+                  <span class="mi-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></span>
+                  Hapus Kios
+                </button>
+              </form>
+            </div>
           </div>
         </td>
       </tr>

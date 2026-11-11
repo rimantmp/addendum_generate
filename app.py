@@ -7,16 +7,17 @@ import sqlite3
 import zipfile
 from collections import OrderedDict
 from datetime import date, datetime
-from flask import Flask, render_template, request, redirect, url_for, send_file, flash, g
+from flask import Flask, render_template, request, redirect, url_for, send_file, flash, g, session
 from sqlalchemy import func
 from sqlalchemy.orm import joinedload
 
 from models import (
-    Base, Distributor, Kios, SKRealokasi, JenisPupuk, PerjanjianInduk, Addendum, DetailAlokasi
+    Base, Distributor, Kios, SKRealokasi, JenisPupuk, PerjanjianInduk, Addendum, DetailAlokasi, User
 )
 from db import SessionLocal, init_db, seed_sample_data, DB_PATH
 from generator import generate_docx, generate_pdf, generate_spjb_docx, generate_spjb_pdf
 from terbilang import BULAN_INDONESIA, generate_nomor_surat_addendum, generate_nomor_spjb
+from werkzeug.security import check_password_hash
 
 app = Flask(__name__)
 app.secret_key = "addendum-secret-key-office-distributor"
@@ -99,6 +100,44 @@ def inject_global_data():
         "app_distributor": dist,
         "local_ip": get_local_ip()
     }
+
+
+@app.before_request
+def require_login():
+    """Proteksi seluruh halaman — hanya login & file statis yang bebas akses."""
+    public_endpoints = {"login", "static"}
+    if request.endpoint in public_endpoints:
+        return
+    if not session.get("user_id"):
+        return redirect(url_for("login"))
+
+
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    if session.get("user_id"):
+        return redirect(url_for("index"))
+
+    if request.method == "POST":
+        email = (request.form.get("email") or "").strip().lower()
+        password = request.form.get("password") or ""
+        db = get_db()
+        user = db.query(User).filter(User.email == email).first()
+        if user and check_password_hash(user.password_hash, password):
+            session["user_id"] = user.id
+            session["user_email"] = user.email
+            session["user_nama"] = user.nama or "Administrator"
+            flash("Selamat datang kembali, " + (user.nama or "Administrator") + "!", "success")
+            return redirect(url_for("index"))
+        flash("Email atau sandi salah. Silakan coba lagi.", "danger")
+
+    return render_template("login.html")
+
+
+@app.route("/logout")
+def logout():
+    session.clear()
+    flash("Anda telah berhasil keluar dari sistem.", "success")
+    return redirect(url_for("login"))
 
 
 @app.route("/")

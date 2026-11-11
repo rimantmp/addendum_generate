@@ -116,3 +116,13 @@ class DetailAlokasi(Base):
 
     addendum = relationship("Addendum", back_populates="alokasi")
     jenis_pupuk = relationship("JenisPupuk")
+
+
+class User(Base):
+    """Akun login untuk mengakses sistem"""
+    __tablename__ = "users"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    email = Column(String(150), unique=True, nullable=False)
+    password_hash = Column(String(255), nullable=False)
+    nama = Column(String(100), default="Administrator")

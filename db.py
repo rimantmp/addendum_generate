@@ -2,8 +2,9 @@ import os
 from datetime import date
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+from werkzeug.security import generate_password_hash
 from models import (
-    Base, Distributor, Kios, SKRealokasi, JenisPupuk, PerjanjianInduk, Addendum, DetailAlokasi
+    Base, Distributor, Kios, SKRealokasi, JenisPupuk, PerjanjianInduk, Addendum, DetailAlokasi, User
 )
 
 DB_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "addendum.db")
@@ -146,6 +147,15 @@ def seed_sample_data():
             session.add(DetailAlokasi(addendum_id=addendum1.id, kecamatan="BITTUANG", bulan=bulan, jenis_pupuk_id=pupuk_urea.id, kuota=float(urea_values[idx])))
             session.add(DetailAlokasi(addendum_id=addendum1.id, kecamatan="BITTUANG", bulan=bulan, jenis_pupuk_id=pupuk_sp36.id, kuota=float(sp36_values[idx])))
             session.add(DetailAlokasi(addendum_id=addendum1.id, kecamatan="BITTUANG", bulan=bulan, jenis_pupuk_id=pupuk_organik.id, kuota=float(org_values[idx])))
+
+    # 7. Akun Login Default (admin@mail.com / password)
+    if not session.query(User).first():
+        session.add(User(
+            email="admin@mail.com",
+            password_hash=generate_password_hash("password"),
+            nama="Administrator"
+        ))
+        session.flush()
 
     session.commit()
     session.close()

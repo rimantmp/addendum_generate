@@ -8,8 +8,8 @@
   <div>
     <h1 class="page-headline">{{ addendum.nomor_addendum }}</h1>
     <p class="page-subheadline">
-      <b>{{ addendum.perjanjian_induk.kios.nama_kios }}</b> &bull; Addendum- {{ addendum.addendum_ke }} &bull; 
-      Wilayah: 
+      <b>{{ addendum.perjanjian_induk.kios.nama_kios }}</b> &bull; Addendum- {{ addendum.addendum_ke }} &bull;
+      Wilayah:
       {% for kec in daftar_kecamatan %}
         <span class="badge badge-green" style="margin-right: 3px;">Kec. {{ kec }}</span>
       {% endfor %}
@@ -22,87 +22,82 @@
     </a>
     <a href="{{ url_for('download_docx', addendum_id=addendum.id) }}" class="btn btn-docx">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-      Unduh Word (.docx)
+      Unduh Word
     </a>
-    <form method="POST" action="{{ url_for('delete_addendum', addendum_id=addendum.id) }}" 
-          onsubmit="return confirmDelete(event, this, 'Hapus dokumen Addendum {{ addendum.nomor_addendum|e }} ({{ addendum.perjanjian_induk.kios.nama_kios|e }})? Dokumen dan seluruh alokasi kuota akan dihapus permanen.');" 
+    <form method="POST" action="{{ url_for('delete_addendum', addendum_id=addendum.id) }}"
+          onsubmit="return confirmDelete(event, this, 'Hapus dokumen Addendum {{ addendum.nomor_addendum|e }} ({{ addendum.perjanjian_induk.kios.nama_kios|e }})? Dokumen dan seluruh alokasi kuota akan dihapus permanen.');"
           style="margin: 0; display: inline;">
       <button type="submit" class="btn btn-danger-subtle" title="Hapus Dokumen Addendum">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
-        Hapus Dokumen
+        Hapus
       </button>
     </form>
   </div>
 </div>
 
-<div style="display: grid; grid-template-columns: 310px 1fr; gap: 24px; align-items: start;">
-  <!-- Sisi Kiri: Metadata & Tambah Kecamatan -->
+<div class="detail-grid">
+  <!-- ============ SISI KIRI: METADATA ============ -->
   <div>
+    <!-- Identitas Para Pihak -->
     <div class="form-card" style="margin-bottom: 18px;">
-      <h3 style="font-size: 13.5px; font-weight: 700; margin-bottom: 12px; border-bottom: 1px solid var(--border); padding-bottom: 8px;">
-        Identitas Para Pihak
-      </h3>
-      <div style="margin-bottom: 14px;">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px;">
-          <div style="font-size: 10.5px; text-transform: uppercase; color: var(--text-muted); font-weight: 600;">Pihak Pertama (Distributor)</div>
-          <button type="button" onclick="openEditDistributorModal()" class="btn btn-secondary btn-sm" style="padding: 1px 6px; font-size: 10px;">Ubah</button>
-        </div>
-        <div style="font-weight: 600; font-size: 13px; color: var(--text-primary);">{{ addendum.perjanjian_induk.distributor.nama_perusahaan }}</div>
-        <div style="font-size: 12px; color: var(--text-secondary);">{{ addendum.perjanjian_induk.distributor.nama_pimpinan }} ({{ addendum.perjanjian_induk.distributor.jabatan }})</div>
+      <div class="card-head">
+        <h3 class="card-title">Identitas Para Pihak</h3>
+        <button type="button" onclick="openEditDistributorModal()" class="btn btn-secondary btn-sm">Ubah P1</button>
       </div>
-      <div>
-        <div style="font-size: 10.5px; text-transform: uppercase; color: var(--text-muted); font-weight: 600;">Pihak Kedua (Kios)</div>
-        <div style="font-weight: 600; font-size: 13px; color: var(--text-primary);">{{ addendum.perjanjian_induk.kios.nama_kios }}</div>
-        <div style="font-size: 12px; color: var(--text-secondary);">{{ addendum.perjanjian_induk.kios.nama_pemilik }} ({{ addendum.perjanjian_induk.kios.jabatan }})</div>
-        <div style="font-size: 11.5px; color: var(--text-muted); margin-top: 2px;">{{ addendum.perjanjian_induk.kios.alamat }}</div>
+
+      <div class="meta-block party">
+        <div class="party-avatar first">I</div>
+        <div>
+          <div class="meta-label">Pihak Pertama (Distributor)</div>
+          <div class="meta-value">{{ addendum.perjanjian_induk.distributor.nama_perusahaan }}</div>
+          <div class="meta-sub">{{ addendum.perjanjian_induk.distributor.nama_pimpinan }} &bull; {{ addendum.perjanjian_induk.distributor.jabatan }}</div>
+        </div>
+      </div>
+
+      <div class="meta-block party">
+        <div class="party-avatar second">II</div>
+        <div>
+          <div class="meta-label">Pihak Kedua (Kios)</div>
+          <div class="meta-value">{{ addendum.perjanjian_induk.kios.nama_kios }}</div>
+          <div class="meta-sub">{{ addendum.perjanjian_induk.kios.nama_pemilik }} &bull; {{ addendum.perjanjian_induk.kios.jabatan }}</div>
+          <div class="meta-sub">{{ addendum.perjanjian_induk.kios.alamat }}</div>
+        </div>
       </div>
     </div>
 
+    <!-- Dasar Hukum -->
     <div class="form-card" style="margin-bottom: 18px;">
-      <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 8px; margin-bottom: 12px;">
-        <h3 style="font-size: 13.5px; font-weight: 700; margin: 0; color: var(--text-primary);">
-          Dasar Hukum Perjanjian
-        </h3>
-        <button type="button" onclick="openEditDasarHukumModal()" class="btn btn-secondary btn-sm" style="padding: 2px 8px; font-size: 10.5px;">
-          Ubah
-        </button>
+      <div class="card-head">
+        <h3 class="card-title">Dasar Hukum Perjanjian</h3>
+        <button type="button" onclick="openEditDasarHukumModal()" class="btn btn-secondary btn-sm">Ubah</button>
       </div>
 
-      <div style="margin-bottom: 12px;">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 3px;">
-          <div style="font-size: 10.5px; color: var(--text-muted); font-weight: 600;">PERJANJIAN INDUK (SPJB)</div>
+      <div class="meta-block">
+        <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px;">
+          <div class="meta-label" style="margin-bottom: 0;">Perjanjian Induk (SPJB)</div>
           <div style="display: flex; gap: 4px;">
-            <a href="{{ url_for('spjb_pdf', kios_id=addendum.perjanjian_induk.kios.id) }}" class="btn btn-secondary btn-sm" style="padding: 2px 6px; font-size: 10px;" title="Unduh SPJB format PDF">PDF</a>
-            <a href="{{ url_for('spjb_docx', kios_id=addendum.perjanjian_induk.kios.id) }}" class="btn btn-secondary btn-sm" style="padding: 2px 6px; font-size: 10px;" title="Unduh SPJB format DOCX">DOCX</a>
+            <a href="{{ url_for('spjb_pdf', kios_id=addendum.perjanjian_induk.kios.id) }}" class="btn btn-secondary btn-sm" style="padding: 2px 7px; font-size: 10px;" title="Unduh SPJB format PDF">PDF</a>
+            <a href="{{ url_for('spjb_docx', kios_id=addendum.perjanjian_induk.kios.id) }}" class="btn btn-secondary btn-sm" style="padding: 2px 7px; font-size: 10px;" title="Unduh SPJB format DOCX">DOCX</a>
           </div>
         </div>
-        <div style="font-weight: 600; font-size: 12.5px; font-family: var(--font-mono); color: var(--text-primary);">{{ addendum.perjanjian_induk.nomor_surat }}</div>
-        <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 5px; padding: 4px 8px; background: var(--surface-alt); border-radius: var(--radius-xs); border: 1px solid var(--border);">
-          <div style="font-size: 11px; color: var(--text-secondary);">
-            Berlaku s/d: <b style="color: var(--text-primary);">{{ addendum.perjanjian_induk.tanggal_berlaku_sampai.strftime('%d-%m-%Y') if addendum.perjanjian_induk.tanggal_berlaku_sampai else '31-12-2022' }}</b>
-          </div>
-          <button type="button" onclick="openEditDasarHukumModal()" class="btn btn-secondary btn-sm" style="padding: 1px 6px; font-size: 10px;">Ubah</button>
+        <div class="mono-val" style="margin-top: 4px;">{{ addendum.perjanjian_induk.nomor_surat }}</div>
+        <div class="legal-chip">
+          <span>Berlaku s/d <b style="color: var(--text-primary);">{{ addendum.perjanjian_induk.tanggal_berlaku_sampai.strftime('%d-%m-%Y') if addendum.perjanjian_induk.tanggal_berlaku_sampai else '31-12-2022' }}</b></span>
         </div>
       </div>
 
       {% if addendum.sk_provinsi %}
-      <div style="margin-bottom: 10px;">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px;">
-          <div style="font-size: 10.5px; color: var(--text-muted); font-weight: 600;">SK PROVINSI (REALOKASI)</div>
-          <button type="button" onclick="openEditDasarHukumModal()" class="btn btn-secondary btn-sm" style="padding: 1px 6px; font-size: 10px;">Ubah</button>
-        </div>
-        <div style="font-weight: 600; font-size: 12.5px; font-family: var(--font-mono);">{{ addendum.sk_provinsi.nomor_sk }}</div>
-        <div style="font-size: 11.5px; color: var(--text-secondary);">{{ addendum.sk_provinsi.realokasi_ke }} &bull; {{ addendum.sk_provinsi.tanggal_sk.strftime('%d/%m/%Y') }}</div>
+      <div class="meta-block">
+        <div class="meta-label">SK Provinsi (Realokasi)</div>
+        <div class="mono-val">{{ addendum.sk_provinsi.nomor_sk }}</div>
+        <div class="meta-sub">{{ addendum.sk_provinsi.realokasi_ke }} &bull; {{ addendum.sk_provinsi.tanggal_sk.strftime('%d/%m/%Y') }}</div>
       </div>
       {% endif %}
 
-      <div>
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px;">
-          <div style="font-size: 10.5px; color: var(--text-muted); font-weight: 600;">SK KABUPATEN (REALOKASI)</div>
-          <button type="button" onclick="openEditDasarHukumModal()" class="btn btn-secondary btn-sm" style="padding: 1px 6px; font-size: 10px;">Ubah</button>
-        </div>
-        <div style="font-weight: 600; font-size: 12.5px; font-family: var(--font-mono);">{{ addendum.sk_kabupaten.nomor_sk if addendum.sk_kabupaten else '-' }}</div>
-        <div style="font-size: 11.5px; color: var(--text-secondary);">
+      <div class="meta-block">
+        <div class="meta-label">SK Kabupaten (Realokasi)</div>
+        <div class="mono-val">{{ addendum.sk_kabupaten.nomor_sk if addendum.sk_kabupaten else '-' }}</div>
+        <div class="meta-sub">
           {{ addendum.sk_kabupaten.realokasi_ke if addendum.sk_kabupaten else 'Belum ditentukan' }}
           {% if addendum.sk_kabupaten and addendum.sk_kabupaten.tanggal_sk %}
             &bull; {{ addendum.sk_kabupaten.tanggal_sk.strftime('%d/%m/%Y') }}
@@ -111,55 +106,49 @@
       </div>
     </div>
 
-    <!-- Quick Add Kecamatan Box -->
-    <div class="form-card" style="border: 1px solid var(--border); background-color: var(--surface-alt);">
-      <h3 style="font-size: 13px; font-weight: 700; color: var(--text-primary); margin-bottom: 4px;">
-        + Tambah Tabel Kecamatan
-      </h3>
-      <p style="font-size: 11.5px; color: var(--text-secondary); margin-bottom: 12px;">
+    <!-- Quick Add Kecamatan -->
+    <div class="form-card quick-add-card">
+      <h3 class="card-title" style="margin-bottom: 4px;">Tambah Tabel Kecamatan</h3>
+      <p style="font-size: 12px; color: var(--text-secondary); margin-bottom: 14px; line-height: 1.45;">
         Tambahkan tabel alokasi untuk wilayah kecamatan lain jika kios melayani lebih dari satu wilayah.
       </p>
       <form method="POST" action="{{ url_for('add_kecamatan_to_addendum', addendum_id=addendum.id) }}">
-        <div class="form-group" style="margin-bottom: 8px;">
+        <div class="form-group" style="margin-bottom: 10px;">
           <input type="text" name="nama_kecamatan" class="form-input" placeholder="Contoh: MASANDA" style="text-transform: uppercase; font-weight: 600;" required>
         </div>
         <button type="submit" class="btn btn-primary btn-sm" style="width: 100%;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
           Tambahkan Tabel Kecamatan
         </button>
       </form>
     </div>
   </div>
 
-  <!-- Sisi Kanan: Matriks Kuota Bulanan (Per Kecamatan) -->
+  <!-- ============ SISI KANAN: MATRIKS KUOTA ============ -->
   <div>
     <form method="POST" action="{{ url_for('update_allocation', addendum_id=addendum.id) }}">
-      
+
       {% for k_item in kecamatan_tables %}
-      <input type="hidden" name="kecamatan_list" value="{{ k_item.kecamatan }}">
-      
-      <div class="form-card" style="margin-bottom: 22px;">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid var(--border); padding-bottom: 10px;">
+      <div class="form-card" style="margin-bottom: 20px;">
+        <input type="hidden" name="kecamatan_list" value="{{ k_item.kecamatan }}">
+        <div class="kec-head">
           <div>
-            <div style="font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: 600;">Wilayah Distribusi</div>
-            <h3 style="font-size: 15px; font-weight: 700; color: var(--text-primary);">
-              KECAMATAN {{ k_item.kecamatan }}
-            </h3>
+            <div class="kec-eyebrow">Wilayah Distribusi</div>
+            <div class="kec-title">Kecamatan {{ k_item.kecamatan }}</div>
           </div>
-          
-          <div style="display: flex; gap: 8px; align-items: center;">
+          <div class="kec-actions">
             <button type="button" class="btn btn-secondary btn-sm" onclick="openExcelModalForTable(this)" title="Salin & tempel tabel alokasi langsung dari Microsoft Excel">
               📋 Paste dari Excel
             </button>
             <span class="badge badge-green" style="font-variant-numeric: tabular-nums;">
               Total: {{ k_item.totals[0] }} Ton NPK
             </span>
-            
             {% if kecamatan_tables|length > 1 %}
-            <button type="button" 
+            <button type="button"
                     data-action="{{ url_for('delete_kecamatan_from_addendum', addendum_id=addendum.id) }}"
                     onclick="confirmDeleteKecamatan(this, '{{ k_item.kecamatan }}')"
                     class="btn btn-danger-subtle btn-sm" title="Hapus tabel kecamatan ini">
-              Hapus Kecamatan
+              Hapus
             </button>
             {% endif %}
           </div>
@@ -182,8 +171,8 @@
               <td class="col-bulan-title">{{ r.bulan }}</td>
               {% for p in jenis_pupuk_list %}
                 <td>
-                  <input type="number" step="any" min="0" 
-                         name="kuota_{{ k_item.kecamatan }}_{{ r.no }}_{{ p.id }}" 
+                  <input type="number" step="any" min="0"
+                         name="kuota_{{ k_item.kecamatan }}_{{ r.no }}_{{ p.id }}"
                          value="{{ k_item.matriks[r.no][p.id] }}">
                 </td>
               {% endfor %}
@@ -203,14 +192,12 @@
 
       <!-- Rekapitulasi Jika > 1 Kecamatan -->
       {% if kecamatan_tables|length > 1 %}
-      <div class="form-card" style="margin-bottom: 24px; background: #fafbfc;">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid var(--border); padding-bottom: 8px;">
-          <h3 style="font-size: 14px; font-weight: 700; color: var(--text-primary);">
-            Rekapitulasi Total Seluruh Kecamatan
-          </h3>
+      <div class="form-card" style="margin-bottom: 22px;">
+        <div class="card-head">
+          <h3 class="card-title">Rekapitulasi Total Seluruh Kecamatan</h3>
           <span style="font-size: 11.5px; color: var(--text-secondary);">Satuan: Ton/Liter</span>
         </div>
-        
+
         <table class="matrix-input-table">
           <thead>
             <tr>
@@ -244,8 +231,8 @@
       {% endif %}
 
       <!-- Sticky Save Bar -->
-      <div style="position: sticky; bottom: 16px; z-index: 10; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(4px); border: 1px solid var(--border-strong); padding: 12px 18px; border-radius: var(--radius-md); box-shadow: var(--shadow-md); display: flex; justify-content: space-between; align-items: center;">
-        <div style="font-size: 12px; color: var(--text-secondary);">
+      <div class="sticky-action-bar" style="justify-content: space-between;">
+        <div style="font-size: 12.5px; color: var(--text-secondary);">
           Pastikan seluruh kuota telah sesuai sebelum menyimpan.
         </div>
         <button type="submit" class="btn btn-primary btn-lg">
@@ -272,8 +259,7 @@
     </div>
 
     <form method="POST" action="{{ url_for('update_dasar_hukum', addendum_id=addendum.id) }}">
-      
-      <!-- 1. SPJB INDUK -->
+
       <div style="font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 8px;">
         1. Surat Perjanjian Jual Beli Pokok (SPJB)
       </div>
@@ -286,12 +272,11 @@
         </div>
         <div class="form-group">
           <label class="form-label">Masa Berlaku Sampai (Poin A)</label>
-          <input type="date" name="tanggal_spjb_sampai" class="form-input" 
+          <input type="date" name="tanggal_spjb_sampai" class="form-input"
                  value="{{ addendum.perjanjian_induk.tanggal_berlaku_sampai.strftime('%Y-%m-%d') if addendum.perjanjian_induk.tanggal_berlaku_sampai else '2022-12-31' }}" required>
         </div>
       </div>
 
-      <!-- 2. SK KABUPATEN -->
       <div style="font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.6px; margin-top: 6px; margin-bottom: 8px;">
         2. Dasar SK Realokasi Kabupaten
       </div>
@@ -300,9 +285,9 @@
         <label class="form-label">Pilih SK Realokasi Terdaftar</label>
         <select id="select_sk_kab" class="form-select" onchange="syncSkKabFields(this)">
           {% for sk in sk_kabupaten_list %}
-            <option value="{{ sk.id }}" 
-                    data-nomor="{{ sk.nomor_sk }}" 
-                    data-realokasi="{{ sk.realokasi_ke }}" 
+            <option value="{{ sk.id }}"
+                    data-nomor="{{ sk.nomor_sk }}"
+                    data-realokasi="{{ sk.realokasi_ke }}"
                     data-tanggal="{{ sk.tanggal_sk.strftime('%Y-%m-%d') }}"
                     {% if addendum.sk_kabupaten_id == sk.id %}selected{% endif %}>
               {{ sk.nomor_sk }} - {{ sk.realokasi_ke }} ({{ sk.tanggal_sk.strftime('%d/%m/%Y') }})
@@ -332,7 +317,6 @@
                value="{{ addendum.sk_kabupaten.tanggal_sk.strftime('%Y-%m-%d') if addendum.sk_kabupaten and addendum.sk_kabupaten.tanggal_sk else '' }}" required>
       </div>
 
-      <!-- 3. SK PROVINSI -->
       <div style="font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.6px; margin-top: 6px; margin-bottom: 8px;">
         3. Dasar SK Realokasi Provinsi (Opsional)
       </div>
