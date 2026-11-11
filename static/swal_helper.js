@@ -1,6 +1,7 @@
 /**
  * AG-PUPUK SweetAlert2 Custom Enterprise Helper
- * Menangani notifikasi status (Tambah, Edit, Hapus) dan dialog konfirmasi interaktif.
+ * Anthropic Minimalist Institutional Design System
+ * Restrained colors, high contrast (#141413), crisp typography.
  */
 
 // 1. Notifikasi Flash Message Otomatis
@@ -9,20 +10,20 @@ function triggerFlashAlert(category, message) {
 
   let title = 'Informasi';
   let icon = 'info';
-  let confirmColor = '#0f766e';
+  let confirmColor = '#141413';
 
   if (category === 'success') {
-    title = 'Berhasil!';
+    title = 'Berhasil';
     icon = 'success';
-    confirmColor = '#0f766e';
+    confirmColor = '#141413';
   } else if (category === 'danger' || category === 'error') {
-    title = 'Perhatian!';
+    title = 'Perhatian';
     icon = 'error';
-    confirmColor = '#dc2626';
+    confirmColor = '#991b1b';
   } else if (category === 'warning') {
-    title = 'Peringatan!';
+    title = 'Peringatan';
     icon = 'warning';
-    confirmColor = '#d97706';
+    confirmColor = '#141413';
   }
 
   Swal.fire({
@@ -54,8 +55,8 @@ function confirmDelete(e, formOrTarget, customMessage, customTitle) {
     text: text,
     icon: 'warning',
     showCancelButton: true,
-    confirmButtonColor: '#dc2626',
-    cancelButtonColor: '#64748b',
+    confirmButtonColor: '#991b1b',
+    cancelButtonColor: '#141413',
     confirmButtonText: 'Ya, Hapus Sekarang',
     cancelButtonText: 'Batal',
     reverseButtons: true,
@@ -80,7 +81,7 @@ function confirmDelete(e, formOrTarget, customMessage, customTitle) {
 }
 
 // 3. Dialog Konfirmasi Aksi Penting (Restore / Simpan)
-function confirmAction(e, formOrTarget, title, message, confirmBtnText = 'Lanjutkan', confirmColor = '#0f766e') {
+function confirmAction(e, formOrTarget, title, message, confirmBtnText = 'Lanjutkan', confirmColor = '#141413') {
   if (e && e.preventDefault) {
     e.preventDefault();
   }
@@ -91,7 +92,7 @@ function confirmAction(e, formOrTarget, title, message, confirmBtnText = 'Lanjut
     icon: 'question',
     showCancelButton: true,
     confirmButtonColor: confirmColor,
-    cancelButtonColor: '#64748b',
+    cancelButtonColor: '#141413',
     confirmButtonText: confirmBtnText,
     cancelButtonText: 'Batal',
     reverseButtons: true,
