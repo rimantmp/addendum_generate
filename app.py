@@ -188,6 +188,9 @@ def addendum_detail(addendum_id):
         for p in jenis_pupuk_list
     ]
 
+    sk_provinsi_list = db.query(SKRealokasi).filter(SKRealokasi.tingkat == "Provinsi").all()
+    sk_kabupaten_list = db.query(SKRealokasi).filter(SKRealokasi.tingkat == "Kabupaten").all()
+
     return render_template(
         "addendum_detail.html",
         addendum=addendum,
@@ -195,7 +198,9 @@ def addendum_detail(addendum_id):
         daftar_kecamatan=daftar_kecamatan,
         kecamatan_tables=kecamatan_tables,
         grand_totals=grand_totals_formatted,
-        rows_data=rows_data
+        rows_data=rows_data,
+        sk_provinsi_list=sk_provinsi_list,
+        sk_kabupaten_list=sk_kabupaten_list
     )
 
 
@@ -503,6 +508,85 @@ def update_spjb_expiry(addendum_id):
             flash(f"Masa berlaku SPJB berhasil diperbarui menjadi {addendum.perjanjian_induk.tanggal_berlaku_sampai.strftime('%d-%m-%Y')}!", "success")
         except Exception as e:
             flash(f"Gagal memperbarui tanggal: {str(e)}", "danger")
+    return redirect(url_for("addendum_detail", addendum_id=addendum_id))
+
+
+@app.route("/addendum/<int:addendum_id>/update-dasar-hukum", methods=["POST"])
+def update_dasar_hukum(addendum_id):
+    db = get_db()
+    addendum = db.query(Addendum).filter(Addendum.id == addendum_id).first()
+    if not addendum:
+        flash("Addendum tidak ditemukan", "danger")
+        return redirect(url_for("index"))
+
+    # 1. Update Nomor SPJB & Tanggal Berlaku Sampai
+    nomor_spjb = request.form.get("nomor_spjb", "").strip()
+    tgl_spjb_str = request.form.get("tanggal_spjb_sampai")
+    if addendum.perjanjian_induk:
+        if nomor_spjb:
+            addendum.perjanjian_induk.nomor_surat = nomor_spjb
+            if addendum.perjanjian_induk.kios:
+                addendum.perjanjian_induk.kios.nomor_spjb = nomor_spjb
+        if tgl_spjb_str:
+            try:
+                addendum.perjanjian_induk.tanggal_berlaku_sampai = datetime.strptime(tgl_spjb_str, "%Y-%m-%d").date()
+            except Exception:
+                pass
+
+    # 2. Update SK Kabupaten
+    sk_kab_id_raw = request.form.get("sk_kabupaten_id", "")
+    nomor_sk_kab = request.form.get("nomor_sk_kab", "").strip()
+    realokasi_ke_kab = request.form.get("realokasi_ke_kab", "").strip()
+    tgl_sk_kab_str = request.form.get("tanggal_sk_kab")
+
+    if sk_kab_id_raw == "new":
+        if nomor_sk_kab and realokasi_ke_kab and tgl_sk_kab_str:
+            try:
+                tgl_kab = datetime.strptime(tgl_sk_kab_str, "%Y-%m-%d").date()
+                new_sk = SKRealokasi(
+                    tingkat="Kabupaten",
+                    nomor_sk=nomor_sk_kab,
+                    realokasi_ke=realokasi_ke_kab,
+                    tanggal_sk=tgl_kab,
+                    tahun_anggaran=addendum.tahun_anggaran or 2022,
+                    nama_daerah="Kabupaten Tana Toraja",
+                    nama_pejabat_dinas="Kepala Dinas Pertanian Kabupaten Tana Toraja"
+                )
+                db.add(new_sk)
+                db.flush()
+                addendum.sk_kabupaten_id = new_sk.id
+            except Exception as e:
+                flash(f"Gagal membuat SK baru: {str(e)}", "danger")
+    else:
+        try:
+            sk_id = int(sk_kab_id_raw)
+            addendum.sk_kabupaten_id = sk_id
+            # Juga sinkronkan nilai SK tersebut jika user mengedit teksnya
+            sk_obj = db.query(SKRealokasi).filter(SKRealokasi.id == sk_id).first()
+            if sk_obj and nomor_sk_kab:
+                sk_obj.nomor_sk = nomor_sk_kab
+                if realokasi_ke_kab:
+                    sk_obj.realokasi_ke = realokasi_ke_kab
+                if tgl_sk_kab_str:
+                    try:
+                        sk_obj.tanggal_sk = datetime.strptime(tgl_sk_kab_str, "%Y-%m-%d").date()
+                    except Exception:
+                        pass
+        except ValueError:
+            pass
+
+    # 3. Update SK Provinsi
+    sk_prov_id_raw = request.form.get("sk_provinsi_id", "").strip()
+    if sk_prov_id_raw:
+        try:
+            addendum.sk_provinsi_id = int(sk_prov_id_raw)
+        except ValueError:
+            addendum.sk_provinsi_id = None
+    else:
+        addendum.sk_provinsi_id = None
+
+    db.commit()
+    flash("Dasar Hukum Perjanjian (SPJB & SK Realokasi) berhasil diperbarui!", "success")
     return redirect(url_for("addendum_detail", addendum_id=addendum_id))
 
 
