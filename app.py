@@ -1,6 +1,7 @@
 import os
 import io
 import re
+import socket
 import shutil
 import sqlite3
 import zipfile
@@ -78,11 +79,26 @@ def generate_next_nomor_spjb(db, tahun: int = 2022):
         next_num = db.query(Kios).count() + 1
     return generate_nomor_spjb(next_num, tahun)
 
+def get_local_ip():
+    """Mendeteksi IP LAN lokal komputer ini untuk akses multi-komputer kantor"""
+    try:
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.connect(("8.8.8.8", 80))
+        ip = s.getsockname()[0]
+        s.close()
+        return ip
+    except Exception:
+        return "127.0.0.1"
+
+
 @app.context_processor
 def inject_global_data():
     db = get_db()
     dist = db.query(Distributor).first()
-    return {"app_distributor": dist}
+    return {
+        "app_distributor": dist,
+        "local_ip": get_local_ip()
+    }
 
 
 @app.route("/")
@@ -1079,4 +1095,13 @@ def backup_restore():
 
 
 if __name__ == "__main__":
-    app.run(host="127.0.0.1", port=5000, debug=True)
+    local_lan_ip = get_local_ip()
+    port = 5000
+    print("\n" + "=" * 68)
+    print("  SISTEM GENERATOR ADDENDUM & SPJB TELAH AKTIF (JARINGAN MULTI-USER)")
+    print("  CV. SUBUR ANUGERAH SEJAHTERA - KABUPATEN TANA TORAJA")
+    print("=" * 68)
+    print(f"  * Komputer Ini (Host)       : http://localhost:{port}")
+    print(f"  * Komputer Lain (Wi-Fi/LAN) : http://{local_lan_ip}:{port}")
+    print("=" * 68 + "\n")
+    app.run(host="0.0.0.0", port=port, debug=False)

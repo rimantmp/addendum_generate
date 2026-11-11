@@ -65,3 +65,4 @@ echo    INSTALASI SELESAI! SILAKAN JALANKAN: START_APP.bat
 echo ======================================================================
 echo.
 pause
+

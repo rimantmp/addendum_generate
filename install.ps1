@@ -159,7 +159,17 @@ try {
 # 5. Membuat Shortcut Desktop & Peluncur
 # ------------------------------------------------------------------------------
 Write-Host ""
-Write-Host "[5/5] Membuat shortcut peluncur di Desktop..." -ForegroundColor Yellow
+Write-Host "[5/5] Membuat shortcut peluncur di Desktop & pengaturan jaringan..." -ForegroundColor Yellow
+
+try {
+    $fwRule = Get-NetFirewallRule -DisplayName "Sistem Addendum Pupuk (Port 5000)" -ErrorAction SilentlyContinue
+    if (-not $fwRule) {
+        New-NetFirewallRule -DisplayName "Sistem Addendum Pupuk (Port 5000)" -Direction Inbound -LocalPort 5000 -Protocol TCP -Action Allow -Profile Private,Domain -ErrorAction SilentlyContinue | Out-Null
+    }
+    Write-Host "[OK] Firewall jaringan port 5000 diizinkan untuk multi-komputer kantor." -ForegroundColor Green
+} catch {
+    Write-Host ">> Catatan: Konfigurasi firewall dilewati (dapat diatur manual jika diperlukan)." -ForegroundColor Gray
+}
 
 try {
     $desktopDir = [System.Environment]::GetFolderPath([System.Environment+SpecialFolder]::DesktopDirectory)
@@ -190,3 +200,4 @@ Write-Host "2. Atau klik ikon 'Sistem Generator Addendum' di Desktop Anda." -For
 Write-Host ""
 Write-Host "Aplikasi akan otomatis berjalan pada browser di: http://127.0.0.1:5000" -ForegroundColor Yellow
 Write-Host ""
+

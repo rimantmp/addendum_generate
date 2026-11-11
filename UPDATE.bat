@@ -39,3 +39,4 @@ echo    Silakan jalankan aplikasi dengan: START_APP.bat
 echo ======================================================================
 echo.
 pause
+

@@ -1,5 +1,5 @@
 @echo off
-title Sistem Generator Addendum - CV. Subur Anugerah Sejahtera
+title Sistem Generator Addendum & SPJB - Multi-User LAN
 cd /d "%~dp0"
 
 echo ======================================================================
@@ -20,10 +20,10 @@ if not exist "venv\Scripts\python.exe" (
     )
 )
 
-echo Membuka browser web di http://127.0.0.1:5000 ...
-start "" "http://127.0.0.1:5000"
+echo Membuka peramban lokal di http://localhost:5000 ...
+start "" "http://localhost:5000"
 
-echo Menjalankan server aplikasi...
+echo Menjalankan server aplikasi (Dapat diakses oleh seluruh komputer kantor di jaringan yang sama)...
 echo Tekan CTRL+C pada jendela ini jika ingin menghentikan aplikasi.
 echo.
 venv\Scripts\python.exe app.py
